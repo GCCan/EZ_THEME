@@ -64,10 +64,10 @@ export const config  = {
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: 'Yoimiya',
-        siteDescription: 'Yoimiya UI',
+        siteName: '星空联盟',
+        siteDescription: '星空联盟 UI',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} Yoimiya. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} 星空联盟. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,
@@ -279,10 +279,10 @@ export const config  = {
 
         // 客户端下载链接  //可以改成文档链接直接在新标签页打开
         clientLinks: {
-            ios: 'https://1drv.ms/f/c/ede46bf559eeb819/IgBk1PJV8g5HSLmvE2CFdCJiAb1tcByOccsDkbG5KpgOfCg?e=csjvVC',
-            android: 'https://1drv.ms/f/c/ede46bf559eeb819/IgBk1PJV8g5HSLmvE2CFdCJiAb1tcByOccsDkbG5KpgOfCg?e=csjvVC',
-            macos: 'https://1drv.ms/f/c/ede46bf559eeb819/IgBk1PJV8g5HSLmvE2CFdCJiAb1tcByOccsDkbG5KpgOfCg?e=csjvVC',
-            windows: 'https://1drv.ms/f/c/ede46bf559eeb819/IgBk1PJV8g5HSLmvE2CFdCJiAb1tcByOccsDkbG5KpgOfCg?e=csjvVC',
+            ios: 'https://apps.apple.com/us/app/shadowrocket/id932747118',
+            android: 'https://download.sakana.homes/android/flclash.apk',
+            macos: 'https://download.sakana.homes/macos/flclash-arm64.dmg',
+            windows: 'https://download.sakana.homes/windows/flclash.exe',
             linux: 'https://1drv.ms/f/c/ede46bf559eeb819/IgBk1PJV8g5HSLmvE2CFdCJiAb1tcByOccsDkbG5KpgOfCg?e=csjvVC',
             openwrt: 'https://1drv.ms/f/c/ede46bf559eeb819/IgBk1PJV8g5HSLmvE2CFdCJiAb1tcByOccsDkbG5KpgOfCg?e=csjvVC'
         },
@@ -468,7 +468,7 @@ export const config  = {
         restrictBrowsers: {
             '360': true,     // 360浏览器
             'QQ': true,      // QQ浏览器
-            'WeChat': true,  // 微信内置浏览器
+            'WeChat': false,  // 微信内置浏览器
             'Baidu': true,   // 百度浏览器
             'Sogou': true,   // 搜狗浏览器
             'UC': false,     // UC浏览器

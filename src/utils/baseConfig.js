@@ -198,9 +198,9 @@ export const CUSTOM_HEADERS_CONFIG = mergeDeep(DEFAULT_CUSTOM_HEADERS_CONFIG, ge
 
 // 网站名称配置
 const DEFAULT_SITE_CONFIG = {
-    siteName: 'Yoimiya',
-    siteDescription: 'Yoimiya UI',
-    copyright: `© ${new Date().getFullYear()} Yoimiya. All Rights Reserved.`,
+    siteName: '星空联盟',
+    siteDescription: '星空联盟 UI',
+    copyright: `© ${new Date().getFullYear()} 星空联盟. All Rights Reserved.`,
 
     // 是否显示标题中的网站Logo (true=显示, false=隐藏)
     showLogo: true,
