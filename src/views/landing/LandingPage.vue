@@ -713,6 +713,10 @@ export default {
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
+  
+  @media (max-width: 768px) {
+    margin-top: 2vh;
+  }
 }
 
 .is-loaded .hero-content {
@@ -863,7 +867,7 @@ export default {
   
   @media (max-width: 768px) {
     font-size: 0.9rem;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
   }
 }
 
@@ -876,9 +880,9 @@ export default {
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 16px;
-    max-width: 400px;
-    margin-bottom: 36px;
+    gap: 12px;
+    max-width: 100%;
+    margin-bottom: 24px;
   }
 }
 
@@ -910,7 +914,15 @@ export default {
   }
   
   @media (max-width: 768px) {
-    padding: 24px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 
+      "icon title"
+      "icon desc";
+    gap: 4px 16px;
+    align-items: center;
+    text-align: left;
+    padding: 16px 20px;
     border-radius: 16px;
   }
 }
@@ -938,10 +950,11 @@ export default {
   color: var(--theme-color);
   
   @media (max-width: 768px) {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    margin-bottom: 14px;
+    grid-area: icon;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    margin-bottom: 0;
   }
 }
 
@@ -953,7 +966,9 @@ export default {
   letter-spacing: 0.5px;
   
   @media (max-width: 768px) {
+    grid-area: title;
     font-size: 1rem;
+    margin: 0;
   }
 }
 
@@ -965,7 +980,9 @@ export default {
   line-height: 1.6;
   
   @media (max-width: 768px) {
+    grid-area: desc;
     font-size: 0.82rem;
+    line-height: 1.4;
   }
 }
 
