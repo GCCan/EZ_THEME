@@ -1,4 +1,4 @@
-﻿
+
 
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
@@ -131,7 +131,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['zh-CN'] || '探索全球网络无限可能',
     scrollText: '向下滑动以登录',
-    exploreButton: '开始探索'
+    exploreButton: '开始探索',
+    introTitle: '为什么选择我们',
+    introSubtitle: '我们致力于为全球用户提供高品质的网络加速服务，让连接无处不在',
+    featureSpeed: '高速网络',
+    featureSpeedDesc: '全球优化线路，智能加速引擎，让您享受极致的网络体验',
+    featureGlobal: '全球节点',
+    featureGlobalDesc: '覆盖多个国家和地区，随时随地畅享无界网络',
+    featureSecurity: '安全加密',
+    featureSecurityDesc: '军事级别加密技术，全方位保护您的隐私与数据安全',
+    scrollMore: '了解更多',
+    enterPanel: '开始体验'
   },
   contextMenu: {
     refresh: '刷新页面',

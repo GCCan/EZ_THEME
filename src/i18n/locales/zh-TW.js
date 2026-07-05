@@ -1,4 +1,4 @@
-﻿
+
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -175,7 +175,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['zh-TW'] || '探索全球網路的無限可能',
     scrollText: '向下滑動以登入',
-    exploreButton: '開始探索'
+    exploreButton: '開始探索',
+    introTitle: '為什麼選擇我們',
+    introSubtitle: '我們致力於為全球用戶提供高品質的網路加速服務，讓連接無處不在',
+    featureSpeed: '高速網路',
+    featureSpeedDesc: '全球優化線路，智慧加速引擎，讓您享受極致的網路體驗',
+    featureGlobal: '全球節點',
+    featureGlobalDesc: '覆蓋多個國家和地區，隨時隨地暢享無界網路',
+    featureSecurity: '安全加密',
+    featureSecurityDesc: '軍事級別加密技術，全方位保護您的隱私與資料安全',
+    scrollMore: '了解更多',
+    enterPanel: '開始體驗'
   },
   dashboard: {
     welcome: '歡迎回來',

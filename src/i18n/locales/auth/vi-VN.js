@@ -129,7 +129,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['vi-VN'] || 'Khám phá khả năng vô hạn của mạng toàn cầu',
     scrollText: 'Cuộn xuống để đăng nhập',
-    exploreButton: 'Bắt đầu khám phá'
+    exploreButton: 'Bắt đầu khám phá',
+    introTitle: 'Tại sao chọn chúng tôi',
+    introSubtitle: 'Chúng tôi cam kết cung cấp dịch vụ tăng tốc mạng chất lượng cao cho người dùng toàn cầu',
+    featureSpeed: 'Tốc độ cao',
+    featureSpeedDesc: 'Tuyến đường tối ưu toàn cầu và công nghệ tăng tốc thông minh',
+    featureGlobal: 'Nút toàn cầu',
+    featureGlobalDesc: 'Phủ sóng nhiều quốc gia và khu vực, kết nối mọi lúc mọi nơi',
+    featureSecurity: 'Mã hóa bảo mật',
+    featureSecurityDesc: 'Công nghệ mã hóa cấp quân sự bảo vệ quyền riêng tư và dữ liệu của bạn',
+    scrollMore: 'Tìm hiểu thêm',
+    enterPanel: 'Bắt đầu'
   },
   contextMenu: {
     refresh: 'Làm mới trang',

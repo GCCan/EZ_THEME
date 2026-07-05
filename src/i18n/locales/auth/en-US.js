@@ -1,4 +1,4 @@
-﻿
+
 
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
@@ -131,7 +131,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['en-US'] || 'Explore the infinite possibilities of the global network',
     scrollText: 'Scroll down to sign in',
-    exploreButton: 'Start Exploring'
+    exploreButton: 'Start Exploring',
+    introTitle: 'Why Choose Us',
+    introSubtitle: 'We are dedicated to providing premium network acceleration services for users worldwide',
+    featureSpeed: 'High Speed',
+    featureSpeedDesc: 'Globally optimized routes and intelligent acceleration for the ultimate experience',
+    featureGlobal: 'Global Nodes',
+    featureGlobalDesc: 'Coverage across multiple countries and regions, seamless connectivity anywhere',
+    featureSecurity: 'Secure Encryption',
+    featureSecurityDesc: 'Military-grade encryption technology to protect your privacy and data security',
+    scrollMore: 'Learn More',
+    enterPanel: 'Get Started'
   },
   contextMenu: {
     refresh: 'Refresh Page',

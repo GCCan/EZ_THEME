@@ -1,5 +1,5 @@
 <template>
-  <div class="landing-page" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': preloaderDone }" @wheel="handleWheel" @scroll="handleScroll" ref="landingPageRef">
+  <div class="landing-page" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': preloaderDone }" @wheel="handleWheel" ref="landingPageRef">
     
     <!-- 电影级加载动画 -->
     <div class="cinematic-preloader" :class="{ 'fade-out': preloaderDone, 'dark-mode': isDarkTheme }">
@@ -7,7 +7,7 @@
     </div>
 
     <!-- 3D Vanta Background Container -->
-    <div ref="vantaRef" class="vanta-background" :class="{ 'light-mode-filter': !isDarkTheme }"></div>
+    <div ref="vantaRef" class="vanta-background" :class="{ 'light-mode-filter': !isDarkTheme, 'is-dimmed': currentSection === 1 }"></div>
     <div class="background-overlay" :class="{ 'dark-mode': isDarkTheme }"></div>
     
     <!-- 电影胶片级噪点纹理 (Active Theory 风格) -->
@@ -19,29 +19,75 @@
 
     <!-- 顶部工具栏 -->
     <div class="top-toolbar">
+      <button class="enter-btn" ref="enterBtnRef"
+              @click="navigateToLogin"
+              @mouseenter="onBtnEnter"
+              @mousemove="onBtnMove"
+              @mouseleave="onBtnLeave">
+        <span class="enter-btn-text">{{ $t('landing.enterPanel') }}</span>
+        <IconArrowRight :size="15" :stroke-width="2.5" />
+        <span class="enter-btn-glow"></span>
+        <span class="enter-btn-shine"></span>
+      </button>
       <ThemeToggle />
       <LanguageSelector />
     </div>
     
-    <!-- 中央内容区 (无边框全景布局) -->
-    <div class="content-container">
-      <div class="hero-content">
-        <img v-if="siteConfig.showLogo" src="/images/logo.png" alt="Logo" class="hero-logo" />
-        <h1 class="site-title">
-          <span class="title-text">{{ siteConfig.siteName }}</span>
-        </h1>
-        <p class="landing-text">{{ $t('landing.mainText') }}</p>
-      </div>
+    <!-- 全屏分页滚动容器 -->
+    <div class="sections-wrapper" :style="{ transform: `translateY(-${currentSection * 100}vh)` }">
+      
+      <!-- 第一屏：Hero -->
+      <section class="fullpage-section section-hero">
+        <div class="content-container">
+          <div class="hero-content">
+            <img v-if="siteConfig.showLogo" src="/images/logo.png" alt="Logo" class="hero-logo" />
+            <h1 class="site-title">
+              <span class="title-text">{{ siteConfig.siteName }}</span>
+            </h1>
+            <p class="landing-text">{{ $t('landing.mainText') }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第二屏：介绍页 -->
+      <section class="fullpage-section section-intro">
+        <div class="intro-container" :class="{ 'is-visible': currentSection === 1 }">
+          <h2 class="intro-title">{{ $t('landing.introTitle') }}</h2>
+          <p class="intro-subtitle">{{ $t('landing.introSubtitle') }}</p>
+          
+          <div class="features-grid">
+            <div class="feature-card" v-for="(feature, index) in features" :key="index"
+                 :style="{ transitionDelay: currentSection === 1 ? `${0.2 + index * 0.15}s` : '0s' }">
+              <div class="feature-icon-wrapper">
+                <component :is="feature.icon" :size="28" :stroke-width="1.5" />
+              </div>
+              <h3 class="feature-title">{{ $t(feature.titleKey) }}</h3>
+              <p class="feature-desc">{{ $t(feature.descKey) }}</p>
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
     </div>
     
+    <!-- 分页指示器 -->
+    <div class="page-indicators">
+      <span class="indicator-dot" :class="{ active: currentSection === 0 }" @click="goToSection(0)"></span>
+      <span class="indicator-dot" :class="{ active: currentSection === 1 }" @click="goToSection(1)"></span>
+    </div>
+
     <!-- 底部箭头 -->
-    <div class="scroll-arrow-container" @click="navigateToLogin">
+    <div class="scroll-arrow-container" @click="handleArrowClick">
       <div class="scroll-arrow">
         <IconChevronDown :size="32" :stroke-width="1.5" />
       </div>
-      <div class="scroll-text">{{ $t('landing.scrollText') }}</div>
+      <div class="scroll-text">{{ currentSection === 0 ? $t('landing.scrollMore') : $t('landing.enterPanel') }}</div>
     </div>
     
+
+
     <!-- 页面过渡遮罩 -->
     <div class="page-transition-mask" :class="{ 'active': isTransitioning }"></div>
   </div>
@@ -56,7 +102,7 @@ import { SITE_CONFIG, DEFAULT_CONFIG } from '@/utils/baseConfig';
 import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
-import { IconChevronDown } from '@tabler/icons-vue';
+import { IconChevronDown, IconBolt, IconWorld, IconShieldLock, IconArrowRight } from '@tabler/icons-vue';
 
 import * as THREE from 'three';
 import HALO from 'vanta/src/vanta.halo';
@@ -67,7 +113,11 @@ export default {
     ThemeToggle,
     LanguageSelector,
     DomainAuthAlert,
-    IconChevronDown
+    IconChevronDown,
+    IconBolt,
+    IconWorld,
+    IconShieldLock,
+    IconArrowRight
   },
   setup() {
     const router = useRouter();
@@ -91,6 +141,18 @@ export default {
     // 预加载状态
     const loadingProgress = ref(0);
     const preloaderDone = ref(false);
+    
+    // 全屏分页状态
+    const currentSection = ref(0);
+    const totalSections = 2;
+    let isScrolling = false; // 节流锁
+    
+    // 特性卡片数据
+    const features = [
+      { icon: IconBolt, titleKey: 'landing.featureSpeed', descKey: 'landing.featureSpeedDesc' },
+      { icon: IconWorld, titleKey: 'landing.featureGlobal', descKey: 'landing.featureGlobalDesc' },
+      { icon: IconShieldLock, titleKey: 'landing.featureSecurity', descKey: 'landing.featureSecurityDesc' }
+    ];
     
     let observer = null;
 
@@ -187,7 +249,7 @@ export default {
       
       // 检测是否悬停在可点击元素上
       const target = e.target;
-      const isClickable = target.closest('a, button, .hero-logo, .scroll-arrow-container, .top-toolbar, .site-title');
+      const isClickable = target.closest('a, button, .hero-logo, .scroll-arrow-container, .top-toolbar, .site-title, .feature-card, .intro-cta-button, .indicator-dot');
       if (isClickable && !isHovering.value) isHovering.value = true;
       else if (!isClickable && isHovering.value) isHovering.value = false;
     };
@@ -207,14 +269,45 @@ export default {
       cursorRafId = requestAnimationFrame(animateCursor);
     };
     
+    // 全屏分页滚动逻辑
+    const goToSection = (index) => {
+      if (isScrolling || index === currentSection.value) return;
+      if (index < 0 || index >= totalSections) return;
+      isScrolling = true;
+      currentSection.value = index;
+      setTimeout(() => { isScrolling = false; }, 800); // 对应 CSS transition 时长
+    };
+    
     const handleScroll = (e) => {
-      if (e.currentTarget === landingPageRef.value && window.scrollY > 100) {
-        navigateToLogin();
-      }
+      // 不再需要原有的 scroll 逻辑
     };
     
     const handleWheel = (e) => {
-      if (e.currentTarget === landingPageRef.value && e.deltaY > 0) {
+      if (isScrolling || isTransitioning.value) return;
+      
+      // 增加死区阈值，避免轻微滚动触发
+      if (Math.abs(e.deltaY) < 30) return;
+      
+      if (e.deltaY > 0) {
+        // 向下滚动
+        if (currentSection.value < totalSections - 1) {
+          goToSection(currentSection.value + 1);
+        } else {
+          // 已经是最后一屏，跳转登录
+          navigateToLogin();
+        }
+      } else {
+        // 向上滚动
+        if (currentSection.value > 0) {
+          goToSection(currentSection.value - 1);
+        }
+      }
+    };
+    
+    const handleArrowClick = () => {
+      if (currentSection.value < totalSections - 1) {
+        goToSection(currentSection.value + 1);
+      } else {
         navigateToLogin();
       }
     };
@@ -239,11 +332,28 @@ export default {
       };
       
       handleTouchMove = (e) => {
+        if (isScrolling || isTransitioning.value) return;
         if (e.currentTarget === landingPageRef.value || landingPageRef.value.contains(e.target)) {
           const touchY = e.touches[0].clientY;
-          if (touchStartY - touchY > 50) { 
-            navigateToLogin();
+          const deltaY = touchStartY - touchY;
+          
+          if (Math.abs(deltaY) < 50) return; // 死区
+          
+          if (deltaY > 0) {
+            // 向上滑（向下翻页）
+            if (currentSection.value < totalSections - 1) {
+              goToSection(currentSection.value + 1);
+            } else {
+              navigateToLogin();
+            }
+          } else {
+            // 向下滑（向上翻页）
+            if (currentSection.value > 0) {
+              goToSection(currentSection.value - 1);
+            }
           }
+          // 重置起始点防止连续触发
+          touchStartY = touchY;
         }
       };
       
@@ -260,6 +370,42 @@ export default {
       }
     });
     
+    // 3D 按钮交互
+    const enterBtnRef = ref(null);
+    
+    const onBtnEnter = () => {
+      if (!enterBtnRef.value) return;
+      enterBtnRef.value.style.transition = 'none';
+    };
+    
+    const onBtnMove = (e) => {
+      if (!enterBtnRef.value) return;
+      const btn = enterBtnRef.value;
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -12; // 最大倾斜12度
+      const rotateY = ((x - centerX) / centerX) * 12;
+      
+      btn.style.transform = `perspective(300px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+      
+      // 动态光斑跟随
+      const shine = btn.querySelector('.enter-btn-shine');
+      if (shine) {
+        shine.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.25) 0%, transparent 60%)`;
+      }
+    };
+    
+    const onBtnLeave = () => {
+      if (!enterBtnRef.value) return;
+      enterBtnRef.value.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      enterBtnRef.value.style.transform = 'perspective(300px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+      const shine = enterBtnRef.value.querySelector('.enter-btn-shine');
+      if (shine) shine.style.background = 'transparent';
+    };
+    
     return {
       landingPageRef,
       vantaRef,
@@ -272,9 +418,17 @@ export default {
       isHovering,
       loadingProgress,
       preloaderDone,
+      currentSection,
+      features,
+      enterBtnRef,
       navigateToLogin,
       handleScroll,
       handleWheel,
+      handleArrowClick,
+      goToSection,
+      onBtnEnter,
+      onBtnMove,
+      onBtnLeave,
     };
   }
 };
@@ -288,7 +442,7 @@ export default {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background-color: var(--background-color);
   color: var(--text-color);
@@ -384,22 +538,26 @@ export default {
 }
 
 .vanta-background {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
-  transition: filter 0.5s ease;
+  transition: filter 0.5s ease, opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1);
   
   &.light-mode-filter {
     filter: invert(1) hue-rotate(180deg) brightness(2.0) saturate(1.8);
+  }
+  
+  &.is-dimmed {
+    opacity: 0.25;
   }
 }
 
 /* Active Theory 风格噪点层 */
 .noise-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -454,7 +612,7 @@ export default {
 }
 
 .background-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -486,9 +644,27 @@ export default {
   transform: translateY(0);
 }
 
-.content-container {
+/* ============ 全屏分页滚动系统 ============ */
+.sections-wrapper {
   position: relative;
   z-index: 10;
+  width: 100%;
+  will-change: transform;
+  transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.fullpage-section {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============ 第一屏：Hero ============ */
+.section-hero .content-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -504,15 +680,11 @@ export default {
   align-items: center;
   text-align: center;
   pointer-events: auto;
-  margin-top: 5vh; /* 往下偏移，使其对齐 3D 光环的中心 */
+  margin-top: -3vh;
   padding: 0 20px;
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
-  
-  @media (max-width: 768px) {
-    margin-top: 6vh; /* 移动端由于屏幕狭长，稍微再往下压一点点 */
-  }
 }
 
 .is-loaded .hero-content {
@@ -600,6 +772,340 @@ export default {
   }
 }
 
+/* ============ 第二屏：介绍页 ============ */
+.section-intro {
+  position: relative;
+}
+
+.intro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 40px;
+  max-width: 1100px;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.intro-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color), white 40%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  
+  .is-visible & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+  }
+}
+
+.intro-subtitle {
+  font-size: 1rem;
+  color: var(--text-color);
+  opacity: 0;
+  margin: 0 0 50px 0;
+  font-weight: 400;
+  letter-spacing: 1px;
+  max-width: 600px;
+  line-height: 1.6;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s;
+  
+  .is-visible & {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-bottom: 36px;
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  margin-bottom: 48px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 400px;
+    margin-bottom: 36px;
+  }
+}
+
+.feature-card {
+  position: relative;
+  padding: 36px 28px;
+  border-radius: 20px;
+  text-align: center;
+  
+  /* 毛玻璃效果 */
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  
+  /* 入场动画 */
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s ease, transform 0.6s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  
+  .is-visible & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  &:hover {
+    border-color: rgba(var(--theme-color-rgb), 0.3);
+    box-shadow: 0 8px 32px rgba(var(--theme-color-rgb), 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+}
+
+/* 浅色主题下卡片调整 */
+.landing-page:not(.dark-theme) .feature-card {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  
+  &:hover {
+    border-color: rgba(var(--theme-color-rgb), 0.4);
+    box-shadow: 0 8px 32px rgba(var(--theme-color-rgb), 0.08);
+  }
+}
+
+.feature-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.15), rgba(var(--theme-color-rgb), 0.05));
+  color: var(--theme-color);
+  
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+  }
+}
+
+.feature-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: var(--text-color);
+  letter-spacing: 0.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.feature-desc {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  margin: 0;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 0.82rem;
+  }
+}
+
+/* ============ 右上角进入按钮 ============ */
+.enter-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.4);
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(var(--theme-color-rgb), 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform: perspective(300px) rotateX(0) rotateY(0) scale3d(1, 1, 1);
+  transition: border-color 0.3s ease, background 0.3s ease,
+              box-shadow 0.3s ease;
+  
+  .enter-btn-text {
+    position: relative;
+    z-index: 1;
+  }
+  
+  svg {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+  }
+  
+  /* 扫光动画 */
+  .enter-btn-glow {
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.15),
+      transparent
+    );
+    transform: skewX(-20deg);
+    animation: btn-shimmer 3s ease-in-out infinite;
+  }
+  
+  /* 鼠标跟随光斑 */
+  .enter-btn-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    transition: background 0.15s ease;
+  }
+  
+  &:hover {
+    border-color: rgba(var(--theme-color-rgb), 0.7);
+    background: rgba(var(--theme-color-rgb), 0.2);
+    box-shadow: 0 8px 24px rgba(var(--theme-color-rgb), 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                inset 0 0 12px rgba(var(--theme-color-rgb), 0.08);
+    
+    svg {
+      transform: translateX(3px);
+    }
+  }
+  
+  &:active {
+    transform: perspective(300px) rotateX(0) rotateY(0) scale3d(0.97, 0.97, 0.97) !important;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 7px 16px;
+    font-size: 0.75rem;
+  }
+}
+
+/* 浅色主题下按钮调整 */
+.landing-page:not(.dark-theme) .enter-btn {
+  color: var(--theme-color);
+  background: rgba(var(--theme-color-rgb), 0.08);
+  border-color: rgba(var(--theme-color-rgb), 0.3);
+  
+  &:hover {
+    background: rgba(var(--theme-color-rgb), 0.15);
+    border-color: rgba(var(--theme-color-rgb), 0.6);
+  }
+}
+
+@keyframes btn-shimmer {
+  0% { left: -75%; }
+  50% { left: 125%; }
+  100% { left: 125%; }
+}
+
+/* ============ 分页指示器 ============ */
+.page-indicators {
+  position: fixed;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.8s ease 1s;
+  
+  @media (max-width: 768px) {
+    right: 16px;
+    gap: 10px;
+  }
+}
+
+.is-loaded .page-indicators {
+  opacity: 1;
+}
+
+.indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &.active {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    box-shadow: 0 0 10px rgba(var(--theme-color-rgb), 0.4);
+    transform: scale(1.3);
+  }
+  
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.15);
+  }
+}
+
+/* 浅色主题下指示器调整 */
+.landing-page:not(.dark-theme) .indicator-dot {
+  background: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.2);
+  
+  &.active {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+  }
+  
+  &:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* ============ 底部箭头 ============ */
 .scroll-arrow-container {
   position: fixed;
   bottom: 40px;

@@ -1,4 +1,4 @@
-﻿
+
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -175,7 +175,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['fa-IR'] || 'امکانات نامحدود شبکه جهانی را کاوش کنید',
     scrollText: 'برای ورود به پایین بکشید',
-    exploreButton: 'شروع کاوش'
+    exploreButton: 'شروع کاوش',
+    introTitle: 'چرا ما را انتخاب کنید',
+    introSubtitle: 'ما به ارائه خدمات شتاب‌دهی شبکه با کیفیت بالا برای کاربران سراسر جهان متعهد هستیم',
+    featureSpeed: 'سرعت بالا',
+    featureSpeedDesc: 'مسیرهای بهینه جهانی و موتور شتاب هوشمند برای بهترین تجربه',
+    featureGlobal: 'گره‌های جهانی',
+    featureGlobalDesc: 'پوشش چندین کشور و منطقه، اتصال بی‌وقفه در هر زمان و مکان',
+    featureSecurity: 'رمزنگاری امن',
+    featureSecurityDesc: 'فناوری رمزنگاری سطح نظامی برای محافظت از حریم خصوصی و امنیت داده‌های شما',
+    scrollMore: 'بیشتر بدانید',
+    enterPanel: 'شروع کنید'
   },
   dashboard: {
     welcome: 'به خانه خوش آمدید',

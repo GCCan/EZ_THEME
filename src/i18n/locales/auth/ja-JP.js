@@ -1,4 +1,4 @@
-﻿
+
 
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
@@ -131,7 +131,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['ja-JP'] || 'グローバルネットワークの無限の可能性を探る',
     scrollText: '下にスクロールしてログイン',
-    exploreButton: '探索を開始'
+    exploreButton: '探索を開始',
+    introTitle: '選ばれる理由',
+    introSubtitle: '世界中のユーザーに高品質なネットワーク加速サービスを提供します',
+    featureSpeed: '高速ネットワーク',
+    featureSpeedDesc: 'グローバル最適化ルートとインテリジェント加速エンジンで究極の体験を',
+    featureGlobal: 'グローバルノード',
+    featureGlobalDesc: '複数の国と地域をカバーし、いつでもどこでもシームレスな接続を',
+    featureSecurity: 'セキュア暗号化',
+    featureSecurityDesc: '軍事グレードの暗号化技術でプライバシーとデータセキュリティを保護',
+    scrollMore: 'もっと見る',
+    enterPanel: '始めましょう'
   },
   contextMenu: {
     refresh: 'ページを更新',

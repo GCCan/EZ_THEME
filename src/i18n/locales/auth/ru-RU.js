@@ -1,4 +1,4 @@
-﻿
+
 
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
@@ -131,7 +131,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['ru-RU'] || 'Исследуйте бесконечные возможности глобальной сети',
     scrollText: 'Прокрутите вниз для входа',
-    exploreButton: 'Начать исследование'
+    exploreButton: 'Начать исследование',
+    introTitle: 'Почему выбирают нас',
+    introSubtitle: 'Мы предоставляем высококачественные услуги ускорения сети для пользователей по всему миру',
+    featureSpeed: 'Высокая скорость',
+    featureSpeedDesc: 'Глобально оптимизированные маршруты и интеллектуальное ускорение',
+    featureGlobal: 'Глобальные узлы',
+    featureGlobalDesc: 'Покрытие множества стран и регионов для бесперебойного подключения',
+    featureSecurity: 'Безопасное шифрование',
+    featureSecurityDesc: 'Шифрование военного уровня для защиты вашей конфиденциальности и данных',
+    scrollMore: 'Узнать больше',
+    enterPanel: 'Начать'
   },
   contextMenu: {
     refresh: 'Обновить страницу',

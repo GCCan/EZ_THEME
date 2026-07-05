@@ -1,4 +1,4 @@
-﻿
+
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -175,7 +175,17 @@ export default {
   landing: {
     mainText: SITE_CONFIG.landingText['ko-KR'] || '글로벌 네트워크의 무한한 가능성을 탐험하세요',
     scrollText: '아래로 스크롤하여 로그인',
-    exploreButton: '탐험 시작'
+    exploreButton: '탐험 시작',
+    introTitle: '우리를 선택하는 이유',
+    introSubtitle: '전 세계 사용자에게 프리미엄 네트워크 가속 서비스를 제공합니다',
+    featureSpeed: '고속 네트워크',
+    featureSpeedDesc: '글로벌 최적화 라우팅과 지능형 가속 엔진으로 최상의 경험을 제공합니다',
+    featureGlobal: '글로벌 노드',
+    featureGlobalDesc: '여러 국가와 지역을 커버하여 언제 어디서나 원활한 연결을 제공합니다',
+    featureSecurity: '보안 암호화',
+    featureSecurityDesc: '군사급 암호화 기술로 개인 정보와 데이터 보안을 보호합니다',
+    scrollMore: '자세히 보기',
+    enterPanel: '시작하기'
   },
   dashboard: {
     welcome: '다시 오신 것을 환영합니다',
