@@ -552,13 +552,13 @@ export default {
   filter: drop-shadow(0 0 30px var(--background-color)) drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
   
   .title-text {
-    background: linear-gradient(135deg, var(--theme-color), #37DEC9, var(--theme-color));
+    background: linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color), white 35%), var(--theme-color));
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
-    text-shadow: 0 0 20px rgba(var(--theme-color-rgb), 0.4);
+    text-shadow: 0 0 10px rgba(var(--theme-color-rgb), 0.3); /* 发光也稍微减弱一点 */
     transition: all 0.3s ease;
     animation: title-gradient-flow 4s linear infinite;
   }

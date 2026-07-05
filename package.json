@@ -1,6 +1,6 @@
 {
   "name": "ez-theme",
-  "version": "v0.4.0",
+  "version": "v4.5.0",
   "private": true,
   "scripts": {
     "dev": "vite",
