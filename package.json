@@ -39,6 +39,8 @@
     "qrcode": "^1.5.4",
     "qrcode.vue": "^3.6.0",
     "shepherd.js": "^14.5.0",
+    "three": "^0.185.1",
+    "vanta": "^0.5.24",
     "vue-confetti": "^2.3.0",
     "vue-confetti-explosion": "^1.0.2",
     "vue-i18n": "^9.2.2",

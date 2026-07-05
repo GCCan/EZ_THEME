@@ -1,9 +1,9 @@
-﻿<template>
+<template>
   <div>
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
     <div class="static-layout" v-if="$route.meta.requiresAuth">
       <!-- 网站名称 -->
-      <div class="site-logo">
+      <div class="site-logo" @click="$router.push('/landing')">
         <img v-if="siteConfig.showLogo" src="/images/logo.png" alt="Logo" class="site-logo-img" />
         {{ siteConfig.siteName }}
       </div>
@@ -304,6 +304,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
   
   .site-logo-img {
     height: 24px;
