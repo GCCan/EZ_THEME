@@ -183,7 +183,9 @@ export default {
         backgroundColor: bgColor,
         baseColor: parsedBaseColor,
         amplitudeFactor: 1.5,
-        size: 1.5
+        size: 1.5,
+        xOffset: window.innerWidth <= 768 ? -0.07 : 0, // 在移动端轻微向左偏移
+        yOffset: window.innerWidth <= 768 ? 0.1 : 0 // 在移动端轻微向下偏移以达到视觉居中
       });
     };
 
@@ -193,23 +195,58 @@ export default {
     });
 
     onMounted(() => {
-      // 启动加载动画进度
-      let progress = 0;
-      const progressInterval = setInterval(() => {
-        // 模拟随机的加载速度，更加真实有机
-        progress += Math.floor(Math.random() * 8) + 2; 
-        if (progress >= 100) {
-          progress = 100;
-          loadingProgress.value = progress;
-          clearInterval(progressInterval);
-          // 加载完成后稍微停顿一下再消失，视觉体验更好
+      // 真实加载状态追踪
+      let currentProgress = 0;
+      let targetProgress = document.readyState === 'complete' ? 100 : 10;
+      
+      // 监听资源加载完成
+      const onLoadComplete = () => {
+        targetProgress = 100;
+      };
+      
+      if (document.readyState === 'complete') {
+        onLoadComplete();
+      } else {
+        window.addEventListener('load', onLoadComplete);
+        // 另外也等待字体加载
+        if (document.fonts) {
+          document.fonts.ready.then(() => {
+            if (targetProgress < 80) targetProgress = 80;
+          });
+        }
+        // 模拟一个保底的渐进式加载，最多卡在 90%
+        const fakeProgress = setInterval(() => {
+          if (targetProgress < 90 && document.readyState !== 'complete') {
+            targetProgress += Math.floor(Math.random() * 15) + 5;
+            if (targetProgress > 90) targetProgress = 90;
+          } else {
+            clearInterval(fakeProgress);
+          }
+        }, 300);
+      }
+
+      // 平滑渲染进度条
+      const renderProgress = () => {
+        currentProgress += (targetProgress - currentProgress) * 0.1; // 缓动逼近目标
+        // 如果目标比当前大，强制至少+1防止无限逼近
+        if (targetProgress > currentProgress && targetProgress - currentProgress < 1) {
+          currentProgress = targetProgress;
+        }
+        
+        loadingProgress.value = Math.floor(currentProgress);
+        
+        if (loadingProgress.value >= 100) {
+          loadingProgress.value = 100;
+          window.removeEventListener('load', onLoadComplete);
           setTimeout(() => {
             preloaderDone.value = true;
           }, 400);
         } else {
-          loadingProgress.value = progress;
+          requestAnimationFrame(renderProgress);
         }
-      }, 50);
+      };
+      
+      requestAnimationFrame(renderProgress);
 
       initVanta();
       
@@ -672,6 +709,39 @@ export default {
   transform: translateY(0);
 }
 
+/* 统一右上角辅助按钮的风格（毛玻璃 + 主题色高光） */
+.top-toolbar :deep(.theme-toggle),
+.top-toolbar :deep(.language-btn) {
+  background: rgba(var(--theme-color-rgb), 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid transparent;
+  color: #fff;
+  box-shadow: none;
+  transition: all 0.3s ease;
+}
+
+.top-toolbar :deep(.theme-toggle):hover,
+.top-toolbar :deep(.language-btn):hover {
+  background: rgba(var(--theme-color-rgb), 0.15);
+  border-color: rgba(var(--theme-color-rgb), 0.5);
+  box-shadow: 0 0 15px rgba(var(--theme-color-rgb), 0.4);
+}
+
+.landing-page:not(.dark-theme) .top-toolbar :deep(.theme-toggle),
+.landing-page:not(.dark-theme) .top-toolbar :deep(.language-btn) {
+  background: rgba(var(--theme-color-rgb), 0.05);
+  border: 1px solid transparent;
+  color: #333;
+}
+
+.landing-page:not(.dark-theme) .top-toolbar :deep(.theme-toggle):hover,
+.landing-page:not(.dark-theme) .top-toolbar :deep(.language-btn):hover {
+  background: rgba(var(--theme-color-rgb), 0.1);
+  border-color: rgba(var(--theme-color-rgb), 0.4);
+  box-shadow: 0 0 12px rgba(var(--theme-color-rgb), 0.2);
+}
+
 /* ============ 全屏分页滚动系统 ============ */
 .sections-wrapper {
   position: relative;
@@ -715,7 +785,7 @@ export default {
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
   
   @media (max-width: 768px) {
-    margin-top: 2vh;
+    margin-top: 8vh;
   }
 }
 
