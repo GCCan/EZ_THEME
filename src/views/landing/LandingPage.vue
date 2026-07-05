@@ -222,7 +222,7 @@ export default {
   transition: filter 0.5s ease;
   
   &.light-mode-filter {
-    filter: invert(1) hue-rotate(180deg);
+    filter: invert(1) hue-rotate(180deg) brightness(1.8) saturate(1.5);
   }
 }
 
@@ -278,6 +278,19 @@ export default {
   margin-bottom: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+  }
 }
 
 .site-title {
@@ -304,6 +317,11 @@ export default {
     font-size: 48px;
     letter-spacing: 2px;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 32px;
+    letter-spacing: 1px;
+  }
 }
 
 .landing-text {
@@ -319,6 +337,12 @@ export default {
   @media (max-width: 768px) {
     font-size: 0.85rem;
     letter-spacing: 4px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    padding: 0 15px;
   }
 }
 
