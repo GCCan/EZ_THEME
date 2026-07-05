@@ -20,7 +20,7 @@ export const config  = {
     // 2. 自动获取: 从当前域名自动生成API基础URL
     API_CONFIG: {
         // API URL获取方式: 'static'=使用静态URL, 'auto'=自动从当前域名获取
-        urlMode: 'auto',
+        urlMode: 'static',
       
         // 是否展示后端联通性检测
         showCheckBackend: true,
@@ -350,9 +350,8 @@ export const config  = {
     // 授权的前端域名列表 (新增)
     AUTHORIZED_DOMAINS: [
         "ss.yoimiya.org",
-        "star.yoimiya.org",
-        "chicago.yoimiya.org",
-        "star.honkai.us"
+        "star.honkai.us",
+        "ez-theme-72q.pages.dev"
     ],
 
     // 验证码配置
@@ -611,7 +610,7 @@ export const config  = {
                 title: 'Telegram',
                 description: '加入我们的Telegram频道',
                 svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-telegram" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" /></svg>',
-                url: 'https://t.me/your_group',
+                url: 'https://t.me/ATT_Wireless',
                 openInNewTab: true
             }
             // 可以继续添加更多卡片...
