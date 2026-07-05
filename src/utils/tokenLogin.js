@@ -1,10 +1,8 @@
-﻿import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import { useToast } from '@/composables/useToast';
 
 import { useI18n } from 'vue-i18n';
-
-import NProgress from 'nprogress';
 
 import { tokenLogin, handleLoginSuccess } from '@/api/auth';
 
@@ -154,10 +152,6 @@ export const handleTokenLogin = async (options = {}) => {
 
   
 
-  NProgress.start();
-
-  
-
   try {
 
     const response = await tokenLogin(verifyToken, redirectPath);
@@ -222,10 +216,6 @@ export const handleTokenLogin = async (options = {}) => {
       error: t('auth.verifyTokenFailed')
 
     };
-
-  } finally {
-
-    NProgress.done();
 
   }
 

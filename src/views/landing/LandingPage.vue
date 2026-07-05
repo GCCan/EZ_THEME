@@ -504,10 +504,15 @@ export default {
   align-items: center;
   text-align: center;
   pointer-events: auto;
-  margin-top: -5vh; /* 稍微向上偏移一点，视觉中心更好看 */
+  margin-top: 5vh; /* 往下偏移，使其对齐 3D 光环的中心 */
+  padding: 0 20px;
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
+  
+  @media (max-width: 768px) {
+    margin-top: 6vh; /* 移动端由于屏幕狭长，稍微再往下压一点点 */
+  }
 }
 
 .is-loaded .hero-content {
@@ -543,6 +548,7 @@ export default {
   margin: 0 0 20px 0;
   text-transform: uppercase;
   letter-spacing: 4px;
+  margin-right: -4px; /* 修复 letter-spacing 导致的视觉不居中 */
   filter: drop-shadow(0 0 30px var(--background-color)) drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
   
   .title-text {
@@ -560,11 +566,15 @@ export default {
   @media (max-width: 768px) {
     font-size: 48px;
     letter-spacing: 2px;
+    margin-right: -2px;
+    word-break: break-word;
+    padding: 0 10px;
   }
   
   @media (max-width: 480px) {
-    font-size: 32px;
+    font-size: 36px; /* 稍微调大一点点 */
     letter-spacing: 1px;
+    margin-right: -1px;
   }
 }
 

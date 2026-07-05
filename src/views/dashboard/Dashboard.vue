@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="dashboard-container">
     <div class="dashboard-inner">
       <AppCard class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
@@ -1645,18 +1645,17 @@ export default {
       }
     };
 
-    onMounted(async () => {
-      await fetchUserConfig();
-
-      fetchUserInfo();
-
-      fetchSubscribe();
-
-      fetchNotices();
-
-      fetchUserStats();
-
-      updateQRCodeUrl();
+    onMounted(() => {
+      // 并发请求所有数据，避免 await 阻塞导致骨架屏出现“二次加载/卡顿”的错觉
+      Promise.allSettled([
+        fetchUserConfig(),
+        fetchUserInfo(),
+        fetchSubscribe(),
+        fetchNotices(),
+        fetchUserStats()
+      ]).then(() => {
+        updateQRCodeUrl();
+      });
     });
 
     watch(() => userPlan.value.subscribeUrl, () => {

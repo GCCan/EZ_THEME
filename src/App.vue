@@ -95,17 +95,8 @@ import CustomerServiceIcon from '@/components/common/CustomerServiceIcon.vue';
 import CrispEmbed from '@/components/common/CrispEmbed.vue';
 import ResourcePreloader from '@/components/common/ResourcePreloader.vue';
 import { IconGift } from '@tabler/icons-vue';
-import NProgress from 'nprogress';
-import 'nprogress/nprogress.css';
 import pageCache from '@/utils/pageCache';
 import { useToast } from '@/composables/useToast';
-
-NProgress.configure({ 
-  showSpinner: true,   
-  easing: 'ease',      
-  speed: 400,          
-  minimum: 0.2         
-});
 
 export default {
   name: 'App',
@@ -142,12 +133,11 @@ export default {
         pageCache.removeRouteFromCache(from.name);
       }
       
-      NProgress.start();
       next();
     });
     
     router.afterEach(() => {
-      NProgress.done();
+      // 路由跳转完成
     });
     
     const handleRedirectParam = () => {
@@ -456,59 +446,4 @@ html {
     content: none !important;
   }
 }
-
-
-#nprogress {
-  pointer-events: none;
-  
-  .bar {
-    background: var(--theme-color);
-    position: fixed;
-    z-index: 1031;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    box-shadow: 0 0 10px var(--theme-color), 0 0 5px var(--theme-color);
-  }
-  
-  
-  .spinner {
-    display: block;
-    position: fixed;
-    z-index: 1031;
-    top: 10px;  
-    left: 10px; 
-    
-    .spinner-icon {
-      width: 18px;
-      height: 18px;
-      box-sizing: border-box;
-      border: solid 2px transparent;
-      border-top-color: var(--theme-color);
-      border-left-color: var(--theme-color);
-      border-radius: 50%;
-      animation: nprogress-spinner 400ms linear infinite;
-    }
-  }
-}
-
-@keyframes nprogress-spinner {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-
-.nprogress-custom-parent {
-  overflow: hidden;
-  position: relative;
-}
-
-.nprogress-custom-parent #nprogress .bar {
-  position: absolute;
-}
-</style> 
+</style>
