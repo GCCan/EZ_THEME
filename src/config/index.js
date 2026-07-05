@@ -29,7 +29,7 @@ export const config  = {
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [
-            'https://ss.yoimiya.org/api/v1',
+            'https://api.honkai.us/api/v1',
         ],
       
         // 自动获取模式配置 (urlMode = 'auto'时使用)
@@ -351,7 +351,8 @@ export const config  = {
     AUTHORIZED_DOMAINS: [
         "ss.yoimiya.org",
         "star.honkai.us",
-        "ez-theme-72q.pages.dev"
+        "ez-theme-72q.pages.dev",
+        "localhost"
     ],
 
     // 验证码配置
@@ -465,11 +466,11 @@ export const config  = {
 
         // 各浏览器是否被限制访问（true=限制访问，false=允许访问）
         restrictBrowsers: {
-            '360': true,     // 360浏览器
-            'QQ': true,      // QQ浏览器
+            '360': false,     // 360浏览器
+            'QQ': false,      // QQ浏览器
             'WeChat': false,  // 微信内置浏览器
-            'Baidu': true,   // 百度浏览器
-            'Sogou': true,   // 搜狗浏览器
+            'Baidu': false,   // 百度浏览器
+            'Sogou': false,   // 搜狗浏览器
             'UC': false,     // UC浏览器
             'Maxthon': false // 傲游浏览器
         },
