@@ -24,8 +24,8 @@
               @mouseenter="onBtnEnter"
               @mousemove="onBtnMove"
               @mouseleave="onBtnLeave">
+        <span class="pulse-dot"></span>
         <span class="enter-btn-text">{{ $t('landing.enterPanel') }}</span>
-        <IconArrowRight :size="15" :stroke-width="2.5" />
         <span class="enter-btn-glow"></span>
         <span class="enter-btn-shine"></span>
       </button>
@@ -102,7 +102,7 @@ import { SITE_CONFIG, DEFAULT_CONFIG } from '@/utils/baseConfig';
 import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
-import { IconChevronDown, IconBolt, IconWorld, IconShieldLock, IconArrowRight } from '@tabler/icons-vue';
+import { IconChevronDown, IconBolt, IconWorld, IconShieldLock } from '@tabler/icons-vue';
 
 import * as THREE from 'three';
 import HALO from 'vanta/src/vanta.halo';
@@ -116,8 +116,7 @@ export default {
     IconChevronDown,
     IconBolt,
     IconWorld,
-    IconShieldLock,
-    IconArrowRight
+    IconShieldLock
   },
   setup() {
     const router = useRouter();
@@ -225,7 +224,9 @@ export default {
       observer.observe(document.body, { attributes: true });
       
       // 启动自定义鼠标引擎
-      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      window.addEventListener('mouseover', onMouseOver, { passive: true });
+      window.addEventListener('mouseout', onMouseOut, { passive: true });
       cursorRafId = requestAnimationFrame(animateCursor);
     });
 
@@ -233,6 +234,8 @@ export default {
       if (vantaEffect) vantaEffect.destroy();
       if (observer) observer.disconnect();
       window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseover', onMouseOver);
+      window.removeEventListener('mouseout', onMouseOut);
       cancelAnimationFrame(cursorRafId);
     });
     
@@ -246,12 +249,20 @@ export default {
     const onMouseMove = (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      
-      // 检测是否悬停在可点击元素上
-      const target = e.target;
-      const isClickable = target.closest('a, button, .hero-logo, .scroll-arrow-container, .top-toolbar, .site-title, .feature-card, .intro-cta-button, .indicator-dot');
-      if (isClickable && !isHovering.value) isHovering.value = true;
-      else if (!isClickable && isHovering.value) isHovering.value = false;
+    };
+
+    const clickableSelector = 'a, button, .hero-logo, .scroll-arrow-container, .top-toolbar, .site-title, .feature-card, .indicator-dot';
+
+    const onMouseOver = (e) => {
+      if (e.target.closest(clickableSelector)) {
+        isHovering.value = true;
+      }
+    };
+
+    const onMouseOut = (e) => {
+      if (e.target.closest(clickableSelector)) {
+        isHovering.value = false;
+      }
     };
 
     const animateCursor = () => {
@@ -372,33 +383,50 @@ export default {
     
     // 3D 按钮交互
     const enterBtnRef = ref(null);
+    let btnRafId = null;
+    let btnMouseX = 0;
+    let btnMouseY = 0;
+    let isBtnHovered = false;
     
     const onBtnEnter = () => {
       if (!enterBtnRef.value) return;
+      isBtnHovered = true;
       enterBtnRef.value.style.transition = 'none';
+      updateBtnTransform();
     };
     
     const onBtnMove = (e) => {
       if (!enterBtnRef.value) return;
+      const rect = enterBtnRef.value.getBoundingClientRect();
+      btnMouseX = e.clientX - rect.left;
+      btnMouseY = e.clientY - rect.top;
+    };
+    
+    const updateBtnTransform = () => {
+      if (!isBtnHovered || !enterBtnRef.value) return;
+      
       const btn = enterBtnRef.value;
       const rect = btn.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -12; // 最大倾斜12度
-      const rotateY = ((x - centerX) / centerX) * 12;
+      const rotateX = ((btnMouseY - centerY) / centerY) * -12; // 最大倾斜12度
+      const rotateY = ((btnMouseX - centerX) / centerX) * 12;
       
       btn.style.transform = `perspective(300px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
       
       // 动态光斑跟随
       const shine = btn.querySelector('.enter-btn-shine');
       if (shine) {
-        shine.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.25) 0%, transparent 60%)`;
+        shine.style.background = `radial-gradient(circle at ${btnMouseX}px ${btnMouseY}px, rgba(255,255,255,0.25) 0%, transparent 60%)`;
       }
+      
+      btnRafId = requestAnimationFrame(updateBtnTransform);
     };
     
     const onBtnLeave = () => {
+      isBtnHovered = false;
+      if (btnRafId) cancelAnimationFrame(btnRafId);
+      
       if (!enterBtnRef.value) return;
       enterBtnRef.value.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
       enterBtnRef.value.style.transform = 'perspective(300px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
@@ -946,33 +974,63 @@ export default {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.4);
+  gap: 8px;
+  padding: 8px 24px;
+  border: none; /* 使用伪元素画流动边框 */
   border-radius: 50px;
   font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   cursor: pointer;
   color: #fff;
-  background: rgba(var(--theme-color-rgb), 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  overflow: hidden;
+  background: rgba(var(--theme-color-rgb), 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   transform-style: preserve-3d;
   transform: perspective(300px) rotateX(0) rotateY(0) scale3d(1, 1, 1);
-  transition: border-color 0.3s ease, background 0.3s ease,
-              box-shadow 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  
+  /* 流动发光边框 */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(var(--theme-color-rgb), 0.1),
+      rgba(var(--theme-color-rgb), 1),
+      rgba(var(--theme-color-rgb), 0.1)
+    );
+    background-size: 200% 100%;
+    animation: border-flow 3s linear infinite;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 0;
+  }
   
   .enter-btn-text {
     position: relative;
     z-index: 1;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
   }
   
-  svg {
+  /* 在线脉冲点 */
+  .pulse-dot {
     position: relative;
     z-index: 1;
-    transition: transform 0.3s ease;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--theme-color);
+    box-shadow: 0 0 8px var(--theme-color), 0 0 12px var(--theme-color);
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   
   /* 扫光动画 */
@@ -985,11 +1043,13 @@ export default {
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.1),
       transparent
     );
     transform: skewX(-20deg);
     animation: btn-shimmer 3s ease-in-out infinite;
+    border-radius: inherit;
+    pointer-events: none;
   }
   
   /* 鼠标跟随光斑 */
@@ -1006,37 +1066,83 @@ export default {
   }
   
   &:hover {
-    border-color: rgba(var(--theme-color-rgb), 0.7);
-    background: rgba(var(--theme-color-rgb), 0.2);
-    box-shadow: 0 8px 24px rgba(var(--theme-color-rgb), 0.3),
-                0 2px 8px rgba(0, 0, 0, 0.2),
-                inset 0 0 12px rgba(var(--theme-color-rgb), 0.08);
+    background: rgba(var(--theme-color-rgb), 0.15);
+    box-shadow: 0 8px 32px rgba(var(--theme-color-rgb), 0.4),
+                0 0 15px rgba(var(--theme-color-rgb), 0.6),
+                inset 0 0 20px rgba(var(--theme-color-rgb), 0.15);
     
-    svg {
-      transform: translateX(3px);
+    .pulse-dot {
+      animation: none;
+      transform: scale(1.2);
+      box-shadow: 0 0 12px var(--theme-color), 0 0 20px var(--theme-color);
+    }
+    
+    &::before {
+      animation: border-flow 1.5s linear infinite;
+      background: linear-gradient(
+        90deg,
+        rgba(var(--theme-color-rgb), 0.3),
+        #ffffff,
+        rgba(var(--theme-color-rgb), 0.3)
+      );
+      background-size: 200% 100%;
     }
   }
   
   &:active {
-    transform: perspective(300px) rotateX(0) rotateY(0) scale3d(0.97, 0.97, 0.97) !important;
+    transform: perspective(300px) rotateX(0) rotateY(0) scale3d(0.95, 0.95, 0.95) !important;
   }
   
   @media (max-width: 768px) {
-    padding: 7px 16px;
+    padding: 7px 18px;
     font-size: 0.75rem;
   }
 }
 
 /* 浅色主题下按钮调整 */
 .landing-page:not(.dark-theme) .enter-btn {
-  color: var(--theme-color);
-  background: rgba(var(--theme-color-rgb), 0.08);
-  border-color: rgba(var(--theme-color-rgb), 0.3);
+  color: #333;
+  background: rgba(var(--theme-color-rgb), 0.05);
+  
+  .enter-btn-text {
+    text-shadow: none;
+  }
+  
+  &::before {
+    background: linear-gradient(
+      90deg,
+      rgba(var(--theme-color-rgb), 0.2),
+      var(--theme-color),
+      rgba(var(--theme-color-rgb), 0.2)
+    );
+    background-size: 200% 100%;
+  }
   
   &:hover {
-    background: rgba(var(--theme-color-rgb), 0.15);
-    border-color: rgba(var(--theme-color-rgb), 0.6);
+    background: rgba(var(--theme-color-rgb), 0.1);
+    box-shadow: 0 8px 24px rgba(var(--theme-color-rgb), 0.25),
+                0 0 12px rgba(var(--theme-color-rgb), 0.4);
+                
+    &::before {
+      background: linear-gradient(
+        90deg,
+        rgba(var(--theme-color-rgb), 0.5),
+        var(--theme-color),
+        rgba(var(--theme-color-rgb), 0.5)
+      );
+      background-size: 200% 100%;
+    }
   }
+}
+
+@keyframes border-flow {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
 }
 
 @keyframes btn-shimmer {
