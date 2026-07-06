@@ -586,6 +586,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100dvh; /* 修复移动端地址栏导致的视觉偏下问题 */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -872,6 +873,7 @@ export default {
 .fullpage-section {
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -887,6 +889,7 @@ export default {
   justify-content: center;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   pointer-events: none; /* 让鼠标事件穿透到 Vanta */
 }
 
@@ -903,7 +906,7 @@ export default {
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
   
   @media (max-width: 768px) {
-    margin-top: 5vh;
+    margin-top: -3vh; /* 取消原先向下推的 5vh，保持和电脑端一致的视觉轻微上移居中 */
   }
 }
 
