@@ -961,12 +961,16 @@ export default {
     margin-right: -2px;
     word-break: break-word;
     padding: 0 10px;
+    width: 100%;
+    text-align: center;
   }
   
   @media (max-width: 480px) {
     font-size: 36px; /* 稍微调大一点点 */
     letter-spacing: 1px;
     margin-right: -1px;
+    width: 100%;
+    text-align: center;
   }
 }
 
