@@ -352,7 +352,8 @@ export const config  = {
         "ss.yoimiya.org",
         "star.honkai.us",
         "ez-theme-72q.pages.dev",
-        "localhost"
+        "localhost",
+        "192.168.31.253"
     ],
 
     // 验证码配置

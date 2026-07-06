@@ -593,7 +593,7 @@ export default {
 .landing-page {
   position: relative;
   width: 100%;
-  height: 100vh; /* 恢复为 100vh 配合 viewport-fit=cover 沉浸式延伸到屏幕边缘，穿透 Safari 半透明状态栏 */
+  height: 100vh; /* 用户要求保留此高度设定 */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -697,8 +697,8 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
   transition: filter 0.5s ease, opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1);
   
