@@ -616,6 +616,7 @@ export default {
   
   @media (max-width: 768px) {
     cursor: auto; /* 移动端恢复默认 */
+    touch-action: none; /* 必须禁用移动端默认下拉刷新和滑动历史记录，否则无法往回划 */
   }
 }
 
@@ -909,6 +910,10 @@ export default {
   height: 100vh;
   height: 100dvh;
   pointer-events: none; /* 让鼠标事件穿透到 Vanta */
+  
+  @media (max-width: 768px) {
+    padding-top: 7vh; /* 仅针对第一屏（内容少）进行视觉居中补偿，不影响二三屏 */
+  }
 }
 
 .hero-content {
