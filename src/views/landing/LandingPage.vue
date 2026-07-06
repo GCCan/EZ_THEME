@@ -924,7 +924,7 @@ export default {
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
   
   @media (max-width: 768px) {
-    margin-top: 0; /* 回调一点，之前 -3vh 在有些手机上可能显得太靠上，0 是绝对几何居中 */
+    margin-top: 0; /* 采用终极解决方案后，不需要再用魔法数字补偿高度了，回归绝对居中 */
   }
 }
 
@@ -984,14 +984,22 @@ export default {
     padding: 0 10px;
     width: 100%;
     text-align: center;
+    
+    /* 终极解决方案：固定最小高度并内部居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px; /* 预留出两行文字的高度 */
   }
   
   @media (max-width: 480px) {
-    font-size: 36px; /* 稍微调大一点点 */
+    font-size: 36px;
     letter-spacing: 1px;
     margin-right: -1px;
     width: 100%;
     text-align: center;
+    
+    min-height: 90px; /* 预留出两行文字的高度 */
   }
 }
 
