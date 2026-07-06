@@ -593,8 +593,7 @@ export default {
 .landing-page {
   position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100dvh; /* 修复移动端地址栏导致的视觉偏下问题 */
+  height: 100vh; /* 恢复为 100vh 配合 viewport-fit=cover 沉浸式延伸到屏幕边缘，穿透 Safari 半透明状态栏 */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -883,7 +882,10 @@ export default {
 .fullpage-section {
   width: 100%;
   height: 100vh;
-  height: 100dvh;
+  box-sizing: border-box;
+  /* 苹果 Safari 专属沉浸式优化：背景延伸到边缘，内容被安全区挤压回可视区域，实现完美居中与穿透 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -899,7 +901,9 @@ export default {
   justify-content: center;
   width: 100%;
   height: 100vh;
-  height: 100dvh;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   pointer-events: none; /* 让鼠标事件穿透到 Vanta */
   
   @media (max-width: 768px) {
