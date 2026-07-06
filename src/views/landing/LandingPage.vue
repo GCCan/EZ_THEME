@@ -1321,8 +1321,7 @@ export default {
 }
 
 .is-loaded .scroll-arrow-container {
-  opacity: 1;
-}
+  opacity: 1;}
 
 .scroll-arrow {
   color: var(--theme-color);
