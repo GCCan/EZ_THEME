@@ -135,9 +135,6 @@ import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
 import { IconChevronDown, IconBolt, IconWorld, IconShieldLock, IconCheck } from '@tabler/icons-vue';
 
-import * as THREE from 'three';
-import HALO from 'vanta/src/vanta.halo';
-
 export default {
   name: 'LandingPage',
   components: {
@@ -208,7 +205,7 @@ export default {
     let observer = null;
 
     // Initialize Vanta Background
-    const initVanta = () => {
+    const initVanta = async () => {
       if (vantaEffect) vantaEffect.destroy();
       
       // 读取当前的 CSS 主题色变量
@@ -224,21 +221,34 @@ export default {
       // 白天和黑夜模式都强制使用黑色背景，凸显3D星云特效
       const bgColor = 0x050505;
       
-      vantaEffect = HALO({
-        el: vantaRef.value,
-        THREE: THREE,
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        backgroundColor: bgColor,
-        baseColor: parsedBaseColor,
-        amplitudeFactor: 1.5,
-        size: 1.5,
-        xOffset: 0,
-        yOffset: 0 // 完全取消所有偏移，让 Vanta 原生居中
-      });
+      // 移动端检测
+      const isMobile = window.innerWidth <= 768;
+      
+      try {
+        // 动态导入，避免阻塞首屏电影级 Loader
+        const [THREE, { default: HALO }] = await Promise.all([
+          import('three'),
+          import('vanta/src/vanta.halo')
+        ]);
+        
+        vantaEffect = HALO({
+          el: vantaRef.value,
+          THREE: THREE,
+          mouseControls: !isMobile, // 移动端关闭以节省性能
+          touchControls: !isMobile,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          backgroundColor: bgColor,
+          baseColor: parsedBaseColor,
+          amplitudeFactor: isMobile ? 1.0 : 2.0, // 移动端降级，PC端增加灵动感
+          size: isMobile ? 1.2 : 2.5, // 增大光环体积，更有压迫感和视觉冲击力
+          xOffset: 0,
+          yOffset: isMobile ? 0 : 0.1 // 微调视觉中心
+        });
+      } catch (err) {
+        console.error('Failed to load Vanta/Three.js', err);
+      }
     };
 
     watch(isDarkTheme, () => {
@@ -246,7 +256,16 @@ export default {
       // initVanta(); 
     });
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (vantaRef.value) vantaRef.value.style.display = 'none'; // 暂停后台渲染
+      } else {
+        if (vantaRef.value) vantaRef.value.style.display = 'block';
+      }
+    };
+
     onMounted(() => {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
       // 真实加载状态追踪
       let currentProgress = 0;
       let targetProgress = document.readyState === 'complete' ? 100 : 10;
@@ -325,7 +344,9 @@ export default {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseover', onMouseOver);
       window.removeEventListener('mouseout', onMouseOut);
-      cancelAnimationFrame(cursorRafId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (cursorRafId) cancelAnimationFrame(cursorRafId);
+      if (btnRafId) cancelAnimationFrame(btnRafId); // 修复 btnRafId 内存泄漏
     });
     
     // 自定义鼠标逻辑
@@ -375,6 +396,13 @@ export default {
       if (index < 0 || index >= totalSections) return;
       isScrolling = true;
       currentSection.value = index;
+      
+      // 滚动休眠机制：滑到下方区域时，调低 Vanta 容器透明度，减少 GPU 压力和背景干扰
+      if (vantaRef.value) {
+        vantaRef.value.style.opacity = index > 0 ? '0.3' : '1';
+        vantaRef.value.style.transition = 'opacity 0.8s ease';
+      }
+      
       setTimeout(() => { isScrolling = false; }, 800); // 对应 CSS transition 时长
     };
     
@@ -673,14 +701,29 @@ export default {
 /* Active Theory 风格噪点层 */
 .noise-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
   pointer-events: none;
   z-index: 2;
-  opacity: 0.05;
+  opacity: 0.08; /* 稍微加强一点点质感 */
   background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+  animation: noise-anim 0.2s steps(2) infinite; /* 动态噪点电影级效果 */
+}
+
+@keyframes noise-anim {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-2%, -2%); }
+  20% { transform: translate(-4%, 2%); }
+  30% { transform: translate(2%, -4%); }
+  40% { transform: translate(-2%, 6%); }
+  50% { transform: translate(-4%, 2%); }
+  60% { transform: translate(6%, 0); }
+  70% { transform: translate(0, 4%); }
+  80% { transform: translate(-6%, 0); }
+  90% { transform: translate(4%, 2%); }
+  100% { transform: translate(2%, 0); }
 }
 
 /* Active Theory 风格自定义鼠标 */
@@ -714,11 +757,14 @@ export default {
   z-index: 9998;
   mix-blend-mode: difference;
   will-change: transform;
-  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              background-color 0.3s ease;
   
   &.is-hovering {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
+    background-color: rgba(255, 255, 255, 0.8); /* 强化磁性吸附质感 */
   }
   
   @media (max-width: 768px) {
@@ -732,7 +778,8 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  /* 增加暗角强度 (Vignette) 聚焦中心视觉 */
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
   pointer-events: none;
   z-index: 1;
   
@@ -749,7 +796,8 @@ export default {
   }
   
   &.dark-mode {
-    background: radial-gradient(circle at center, transparent 0%, rgba(5, 5, 5, 0.7) 100%);
+    /* 黑夜模式极深暗角，光环更神秘 */
+    background: radial-gradient(circle at center, transparent 0%, rgba(3, 3, 3, 0.85) 100%);
     
     &::after {
       background: radial-gradient(circle at center, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.9) 100%);
