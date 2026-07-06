@@ -231,6 +231,9 @@ export default {
           import('vanta/src/vanta.halo')
         ]);
         
+        // 降低像素比例，极大地减少 GPU 计算量，肉眼几乎看不出区别
+        const pixelRatio = window.devicePixelRatio > 1 ? 1.5 : 1;
+        
         vantaEffect = HALO({
           el: vantaRef.value,
           THREE: THREE,
@@ -376,6 +379,9 @@ export default {
     };
 
     const animateCursor = () => {
+      // 移动端根本没有鼠标，直接掐断 requestAnimationFrame 循环节省 CPU
+      if (window.innerWidth <= 768) return;
+      
       // 缓动跟随者
       followerX += (mouseX - followerX) * 0.15;
       followerY += (mouseY - followerY) * 0.15;
@@ -397,10 +403,21 @@ export default {
       isScrolling = true;
       currentSection.value = index;
       
-      // 滚动休眠机制：滑到下方区域时，调低 Vanta 容器透明度，减少 GPU 压力和背景干扰
+      // 滚动休眠机制：滑到下方区域时，直接隐藏 Vanta 容器。
+      // display: none 会被浏览器检测到，从而暂停 WebGL 内部的 requestAnimationFrame 渲染循环，让手机和电脑显卡彻底休息
       if (vantaRef.value) {
-        vantaRef.value.style.opacity = index > 0 ? '0.3' : '1';
-        vantaRef.value.style.transition = 'opacity 0.8s ease';
+        if (index > 0) {
+          vantaRef.value.style.opacity = '0';
+          setTimeout(() => {
+            if (currentSection.value > 0) vantaRef.value.style.display = 'none';
+          }, 800);
+        } else {
+          vantaRef.value.style.display = 'block';
+          // 给浏览器 50ms 的时间处理 DOM display:block，然后再恢复透明度
+          setTimeout(() => {
+            if (currentSection.value === 0) vantaRef.value.style.opacity = '1';
+          }, 50);
+        }
       }
       
       setTimeout(() => { isScrolling = false; }, 800); // 对应 CSS transition 时长
@@ -709,9 +726,10 @@ export default {
   height: 200%;
   pointer-events: none;
   z-index: 2;
-  opacity: 0.08; /* 稍微加强一点点质感 */
-  background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-  animation: noise-anim 0.2s steps(2) infinite; /* 动态噪点电影级效果 */
+  opacity: 0.05; /* 降低一点透明度，静态噪点不需要太重 */
+  /* numOctaves 改为 1 大幅降低 SVG 渲染计算量，且移除 animation 让 GPU/CPU 彻底休息 */
+  background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="1" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+  /* animation: noise-anim 0.2s steps(2) infinite;  移除恐怖的全屏高频重绘动画 */
 }
 
 @keyframes noise-anim {
@@ -906,7 +924,7 @@ export default {
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
   
   @media (max-width: 768px) {
-    margin-top: -3vh; /* 取消原先向下推的 5vh，保持和电脑端一致的视觉轻微上移居中 */
+    margin-top: 0; /* 回调一点，之前 -3vh 在有些手机上可能显得太靠上，0 是绝对几何居中 */
   }
 }
 
