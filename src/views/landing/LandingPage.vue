@@ -218,8 +218,8 @@ export default {
         parsedBaseColor = parseInt(themeColorHex.replace('#', '0x'), 16);
       }
       
-      // 白天和黑夜模式都强制使用黑色背景，凸显3D星云特效
-      const bgColor = 0x050505;
+      // 避免使用纯黑或过深的颜色，改用稍浅的深色，使光环内部不会显得像个黑洞
+      const bgColor = 0x222222;
       
       // 移动端检测
       const isMobile = window.innerWidth <= 768;
@@ -244,7 +244,7 @@ export default {
           amplitudeFactor: isMobile ? 1.0 : 2.0, // 移动端降级，PC端增加灵动感
           size: isMobile ? 1.2 : 2.5, // 增大光环体积，更有压迫感和视觉冲击力
           xOffset: 0,
-          yOffset: isMobile ? 0 : 0.1 // 微调视觉中心
+          yOffset: 0 // 视觉中心完全居中
         });
       } catch (err) {
         console.error('Failed to load Vanta/Three.js', err);
@@ -694,7 +694,8 @@ export default {
   transition: filter 0.5s ease, opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1);
   
   &.light-mode-filter {
-    filter: invert(1) hue-rotate(180deg) brightness(2.0) saturate(1.8);
+    /* 适度压缩高光，保留一定的深色层次（呈现为深灰色），避免泛白的同时杜绝纯黑死区 */
+    filter: brightness(0.85) invert(1) hue-rotate(180deg) brightness(1.5) saturate(2.0);
   }
 }
 
@@ -778,8 +779,8 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  /* 增加暗角强度 (Vignette) 聚焦中心视觉 */
-  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  /* 白天模式下减弱暗角，保留少许深色质感避免完全泛白，同时不至于产生脏脏的黑边 */
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.15) 100%);
   pointer-events: none;
   z-index: 1;
   
