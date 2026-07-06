@@ -141,7 +141,18 @@ export default {
     featureSecurity: 'Secure Encryption',
     featureSecurityDesc: 'Military-grade encryption technology to protect your privacy and data security',
     scrollMore: 'Learn More',
-    enterPanel: 'Get Started'
+    enterPanel: 'Get Started',
+    plansTitle: 'Choose Your Plan',
+    plansSubtitle: 'Offering a variety of flexible subscription plans to meet different needs.',
+    planBasic: 'Basic',
+    planStandard: 'Standard',
+    planPro: 'Pro',
+    month: 'mo',
+    buyNow: 'Buy Now',
+    planFeature1: 'High-speed traffic',
+    planFeature2: 'Global node coverage',
+    planFeature3: 'Streaming unlocked',
+    planFeature4: 'Priority tech support'
   },
   contextMenu: {
     refresh: 'Refresh Page',

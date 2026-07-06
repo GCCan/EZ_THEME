@@ -141,7 +141,18 @@ export default {
     featureSecurity: '보안 암호화',
     featureSecurityDesc: '군사급 암호화 기술로 개인 정보와 데이터 보안을 보호합니다',
     scrollMore: '자세히 보기',
-    enterPanel: '시작하기'
+    enterPanel: '시작하기',
+    plansTitle: '플랜 선택',
+    plansSubtitle: '다양한 요구를 충족하는 유연한 구독 플랜 제공',
+    planBasic: '베이직',
+    planStandard: '스탠다드',
+    planPro: '프로',
+    month: '월',
+    buyNow: '지금 구매',
+    planFeature1: '고속 트래픽',
+    planFeature2: '글로벌 노드 커버리지',
+    planFeature3: '스트리밍 잠금 해제',
+    planFeature4: '우선 기술 지원'
   },
   contextMenu: {
     refresh: '페이지 새로고침',

@@ -141,7 +141,18 @@ export default {
     featureSecurity: '安全加密',
     featureSecurityDesc: '軍事級別加密技術，全方位保護您的隱私與資料安全',
     scrollMore: '了解更多',
-    enterPanel: '開始體驗'
+    enterPanel: '開始體驗',
+    plansTitle: '選擇適合您的套餐',
+    plansSubtitle: '提供多種靈活的訂閱方案，滿足不同使用需求',
+    planBasic: '基礎包',
+    planStandard: '標準包',
+    planPro: '旗艦包',
+    month: '月',
+    buyNow: '立即選購',
+    planFeature1: '高速流量',
+    planFeature2: '全球多節點覆蓋',
+    planFeature3: '串流媒體服務解鎖',
+    planFeature4: '優先技術支援'
   },
   contextMenu: {
     refresh: '刷新頁面',

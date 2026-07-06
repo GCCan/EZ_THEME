@@ -141,7 +141,18 @@ export default {
     featureSecurity: 'رمزنگاری امن',
     featureSecurityDesc: 'فناوری رمزنگاری سطح نظامی برای محافظت از حریم خصوصی و امنیت داده‌های شما',
     scrollMore: 'بیشتر بدانید',
-    enterPanel: 'شروع کنید'
+    enterPanel: 'شروع کنید',
+    plansTitle: 'پلن خود را انتخاب کنید',
+    plansSubtitle: 'پلن‌های اشتراک انعطاف‌پذیر برای نیازهای مختلف',
+    planBasic: 'پایه',
+    planStandard: 'استاندارد',
+    planPro: 'حرفه‌ای',
+    month: 'ماه',
+    buyNow: 'خرید',
+    planFeature1: 'ترافیک پرسرعت',
+    planFeature2: 'پوشش گره جهانی',
+    planFeature3: 'باز کردن قفل استریم',
+    planFeature4: 'پشتیبانی فنی اولویت‌دار'
   },
   contextMenu: {
     refresh: 'تازه سازی صفحه',

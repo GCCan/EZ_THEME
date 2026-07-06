@@ -141,7 +141,18 @@ export default {
     featureSecurity: 'Безопасное шифрование',
     featureSecurityDesc: 'Шифрование военного уровня для защиты вашей конфиденциальности и данных',
     scrollMore: 'Узнать больше',
-    enterPanel: 'Начать'
+    enterPanel: 'Начать',
+    plansTitle: 'Выберите план',
+    plansSubtitle: 'Гибкие тарифные планы для любых потребностей',
+    planBasic: 'Базовый',
+    planStandard: 'Стандарт',
+    planPro: 'Про',
+    month: 'мес',
+    buyNow: 'Купить',
+    planFeature1: 'Высокоскоростной трафик',
+    planFeature2: 'Глобальное покрытие узлов',
+    planFeature3: 'Разблокировка стриминга',
+    planFeature4: 'Приоритетная техподдержка'
   },
   contextMenu: {
     refresh: 'Обновить страницу',

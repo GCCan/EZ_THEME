@@ -141,7 +141,18 @@ export default {
     featureSecurity: '安全加密',
     featureSecurityDesc: '军事级别加密技术，全方位保护您的隐私与数据安全',
     scrollMore: '了解更多',
-    enterPanel: '开始体验'
+    enterPanel: '开始体验',
+    plansTitle: '选择适合您的套餐',
+    plansSubtitle: '提供多种灵活的订阅方案，满足不同使用需求',
+    planBasic: '基础包',
+    planStandard: '标准包',
+    planPro: '旗舰包',
+    month: '月',
+    buyNow: '立即选购',
+    planFeature1: '高速流量',
+    planFeature2: '全球多节点覆盖',
+    planFeature3: '流媒体服务解锁',
+    planFeature4: '优先技术支持'
   },
   contextMenu: {
     refresh: '刷新页面',

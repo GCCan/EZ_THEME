@@ -7,8 +7,8 @@
     </div>
 
     <!-- 3D Vanta Background Container -->
-    <div ref="vantaRef" class="vanta-background" :class="{ 'light-mode-filter': !isDarkTheme, 'is-dimmed': currentSection === 1 }"></div>
-    <div class="background-overlay" :class="{ 'dark-mode': isDarkTheme }"></div>
+    <div ref="vantaRef" class="vanta-background" :class="{ 'light-mode-filter': !isDarkTheme }"></div>
+    <div class="background-overlay" :class="{ 'dark-mode': isDarkTheme, 'is-dimmed': currentSection === 1 || currentSection === 2 }"></div>
     
     <!-- 电影胶片级噪点纹理 (Active Theory 风格) -->
     <div class="noise-overlay"></div>
@@ -26,7 +26,6 @@
               @mouseleave="onBtnLeave">
         <span class="pulse-dot"></span>
         <span class="enter-btn-text">{{ $t('landing.enterPanel') }}</span>
-        <span class="enter-btn-glow"></span>
         <span class="enter-btn-shine"></span>
       </button>
       <ThemeToggle />
@@ -66,7 +65,35 @@
             </div>
           </div>
 
+        </div>
+      </section>
 
+      <!-- 第三屏：套餐页 -->
+      <section class="fullpage-section section-plans">
+        <div class="plans-container" :class="{ 'is-visible': currentSection === 2 }">
+          <h2 class="intro-title">{{ $t('landing.plansTitle') }}</h2>
+          <p class="intro-subtitle">{{ $t('landing.plansSubtitle') }}</p>
+          
+          <div class="plans-grid">
+            <div class="plan-card" v-for="(plan, index) in plans" :key="index"
+                 :class="{ 'is-featured': plan.featured }"
+                 :style="{ transitionDelay: currentSection === 2 ? `${0.2 + index * 0.15}s` : '0s' }">
+              <div class="plan-badge" v-if="plan.featured">Recommend</div>
+              <h3 class="plan-name">{{ $t(plan.nameKey) }}</h3>
+              <div class="plan-price">
+                <span class="currency">¥</span>
+                <span class="amount">{{ plan.price }}</span>
+                <span class="period">/ {{ $t('landing.month') }}</span>
+              </div>
+              <ul class="plan-features-list">
+                <li v-for="(feature, fIndex) in plan.featuresKey" :key="fIndex">
+                  <IconCheck :size="18" class="check-icon" />
+                  <span>{{ $t(feature) }}</span>
+                </li>
+              </ul>
+              <button class="plan-btn" @click="navigateToLogin">{{ $t('landing.buyNow') }}</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -76,6 +103,7 @@
     <div class="page-indicators">
       <span class="indicator-dot" :class="{ active: currentSection === 0 }" @click="goToSection(0)"></span>
       <span class="indicator-dot" :class="{ active: currentSection === 1 }" @click="goToSection(1)"></span>
+      <span class="indicator-dot" :class="{ active: currentSection === 2 }" @click="goToSection(2)"></span>
     </div>
 
     <!-- 底部箭头 -->
@@ -83,11 +111,10 @@
       <div class="scroll-arrow">
         <IconChevronDown :size="32" :stroke-width="1.5" />
       </div>
-      <div class="scroll-text">{{ currentSection === 0 ? $t('landing.scrollMore') : $t('landing.enterPanel') }}</div>
+      <div class="scroll-text">{{ currentSection < totalSections - 1 ? $t('landing.scrollMore') : $t('landing.enterPanel') }}</div>
     </div>
     
-
-
+    
     <!-- 页面过渡遮罩 -->
     <div class="page-transition-mask" :class="{ 'active': isTransitioning }"></div>
   </div>
@@ -102,7 +129,7 @@ import { SITE_CONFIG, DEFAULT_CONFIG } from '@/utils/baseConfig';
 import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
-import { IconChevronDown, IconBolt, IconWorld, IconShieldLock } from '@tabler/icons-vue';
+import { IconChevronDown, IconBolt, IconWorld, IconShieldLock, IconCheck } from '@tabler/icons-vue';
 
 import * as THREE from 'three';
 import HALO from 'vanta/src/vanta.halo';
@@ -116,7 +143,8 @@ export default {
     IconChevronDown,
     IconBolt,
     IconWorld,
-    IconShieldLock
+    IconShieldLock,
+    IconCheck
   },
   setup() {
     const router = useRouter();
@@ -143,7 +171,7 @@ export default {
     
     // 全屏分页状态
     const currentSection = ref(0);
-    const totalSections = 2;
+    const totalSections = 3;
     let isScrolling = false; // 节流锁
     
     // 特性卡片数据
@@ -151,6 +179,26 @@ export default {
       { icon: IconBolt, titleKey: 'landing.featureSpeed', descKey: 'landing.featureSpeedDesc' },
       { icon: IconWorld, titleKey: 'landing.featureGlobal', descKey: 'landing.featureGlobalDesc' },
       { icon: IconShieldLock, titleKey: 'landing.featureSecurity', descKey: 'landing.featureSecurityDesc' }
+    ];
+
+    // 套餐数据
+    const plans = [
+      {
+        nameKey: 'landing.planBasic',
+        price: '15',
+        featuresKey: ['landing.planFeature1', 'landing.planFeature2']
+      },
+      {
+        nameKey: 'landing.planStandard',
+        price: '25',
+        featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3'],
+        featured: true
+      },
+      {
+        nameKey: 'landing.planPro',
+        price: '50',
+        featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3', 'landing.planFeature4']
+      }
     ];
     
     let observer = null;
@@ -184,8 +232,8 @@ export default {
         baseColor: parsedBaseColor,
         amplitudeFactor: 1.5,
         size: 1.5,
-        xOffset: window.innerWidth <= 768 ? -0.07 : 0, // 在移动端轻微向左偏移
-        yOffset: window.innerWidth <= 768 ? 0.1 : 0 // 在移动端轻微向下偏移以达到视觉居中
+        xOffset: 0,
+        yOffset: 0 // 完全取消所有偏移，让 Vanta 原生居中
       });
     };
 
@@ -484,7 +532,9 @@ export default {
       loadingProgress,
       preloaderDone,
       currentSection,
+      totalSections,
       features,
+      plans,
       enterBtnRef,
       navigateToLogin,
       handleScroll,
@@ -614,10 +664,6 @@ export default {
   &.light-mode-filter {
     filter: invert(1) hue-rotate(180deg) brightness(2.0) saturate(1.8);
   }
-  
-  &.is-dimmed {
-    opacity: 0.25;
-  }
 }
 
 /* Active Theory 风格噪点层 */
@@ -685,10 +731,29 @@ export default {
   background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
   pointer-events: none;
   z-index: 1;
-  transition: background 0.3s ease;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.75) 100%);
+  }
   
   &.dark-mode {
     background: radial-gradient(circle at center, transparent 0%, rgba(5, 5, 5, 0.7) 100%);
+    
+    &::after {
+      background: radial-gradient(circle at center, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.9) 100%);
+    }
+  }
+  
+  &.is-dimmed::after {
+    opacity: 1;
   }
 }
 
@@ -785,7 +850,7 @@ export default {
   transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
   
   @media (max-width: 768px) {
-    margin-top: 8vh;
+    margin-top: 5vh;
   }
 }
 
@@ -826,7 +891,7 @@ export default {
   filter: drop-shadow(0 0 30px var(--background-color)) drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
   
   .title-text {
-    background: linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color), white 35%), var(--theme-color));
+    background-image: linear-gradient(135deg, color-mix(in srgb, var(--theme-color), white 40%), color-mix(in srgb, var(--theme-color), white 80%), color-mix(in srgb, var(--theme-color), white 40%));
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -850,6 +915,11 @@ export default {
     letter-spacing: 1px;
     margin-right: -1px;
   }
+}
+
+/* 浅色主题下第一页标题恢复较深的渐变色 */
+.landing-page:not(.dark-theme) .site-title .title-text {
+  background-image: linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color), white 35%), var(--theme-color));
 }
 
 .landing-text {
@@ -895,7 +965,7 @@ export default {
   font-weight: 800;
   margin: 0 0 12px 0;
   letter-spacing: 2px;
-  background: linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color), white 40%));
+  background-image: linear-gradient(135deg, color-mix(in srgb, var(--theme-color), white 40%), color-mix(in srgb, var(--theme-color), white 80%), color-mix(in srgb, var(--theme-color), white 40%));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -917,6 +987,13 @@ export default {
     letter-spacing: 1px;
   }
 }
+
+/* 浅色主题下介绍页标题恢复较深的渐变色 */
+.landing-page:not(.dark-theme) .intro-title {
+  background-image: linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color), white 40%));
+}
+  
+
 
 .intro-subtitle {
   font-size: 1rem;
@@ -963,10 +1040,13 @@ export default {
   text-align: center;
   
   /* 毛玻璃效果 */
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.15);
+  border-left-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   
   /* 入场动画 */
   opacity: 0;
@@ -999,8 +1079,9 @@ export default {
 
 /* 浅色主题下卡片调整 */
 .landing-page:not(.dark-theme) .feature-card {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   
   &:hover {
     border-color: rgba(var(--theme-color-rgb), 0.4);
@@ -1045,7 +1126,7 @@ export default {
 .feature-desc {
   font-size: 0.875rem;
   color: var(--text-color);
-  opacity: 0.6;
+  opacity: 0.85;
   margin: 0;
   line-height: 1.6;
   
@@ -1118,25 +1199,6 @@ export default {
     background-color: var(--theme-color);
     box-shadow: 0 0 8px var(--theme-color), 0 0 12px var(--theme-color);
     animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  /* 扫光动画 */
-  .enter-btn-glow {
-    position: absolute;
-    top: -50%;
-    left: -75%;
-    width: 50%;
-    height: 200%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    transform: skewX(-20deg);
-    animation: btn-shimmer 3s ease-in-out infinite;
-    border-radius: inherit;
-    pointer-events: none;
   }
   
   /* 鼠标跟随光斑 */
@@ -1230,12 +1292,6 @@ export default {
 @keyframes pulse-glow {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-@keyframes btn-shimmer {
-  0% { left: -75%; }
-  50% { left: 125%; }
-  100% { left: 125%; }
 }
 
 /* ============ 分页指示器 ============ */
@@ -1377,5 +1433,295 @@ export default {
     opacity: 1;
     pointer-events: all;
   }
+}
+
+/* ============ 套餐页样式 ============ */
+.section-plans {
+  /* 移除原本的 padding-top 避免整体偏下，利用 fullpage-section 的居中即可 */
+}
+
+.plans-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 50px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 768px) {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    margin: 20px -24px 0 -24px;
+    padding: 20px 24px;
+    gap: 16px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.plan-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.15);
+  border-left-color: rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    border-color: rgba(var(--theme-color-rgb), 0.3);
+    transform: translateY(30px);
+    box-shadow: 0 10px 40px -10px rgba(var(--theme-color-rgb), 0.2);
+    
+    @media (max-width: 992px) {
+      transform: translateY(40px);
+    }
+    
+    .plan-btn {
+      background: rgba(var(--theme-color-rgb), 0.25);
+      border-color: rgba(var(--theme-color-rgb), 0.6);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(var(--theme-color-rgb), 0.4);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    min-width: 85vw;
+    scroll-snap-align: center;
+    padding: 30px 24px;
+    
+    /* On mobile, reset initial translate so it doesn't break horizontal flow */
+    transform: translateY(0);
+    opacity: 1; /* Disable fade-in on scroll to avoid glitching during horizontal swipe */
+    
+    &:hover {
+      transform: translateY(0);
+    }
+  }
+  
+  &.is-featured {
+    border: 1px solid rgba(var(--theme-color-rgb), 0.4);
+    border-top-color: rgba(var(--theme-color-rgb), 0.6);
+    border-left-color: rgba(var(--theme-color-rgb), 0.5);
+    background: rgba(var(--theme-color-rgb), 0.12); /* 恢复原版透亮的主题色玻璃 */
+    box-shadow: 0 8px 32px rgba(var(--theme-color-rgb), 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(1.05) translateY(38px);
+    
+    &:hover {
+      transform: scale(1.05) translateY(28px);
+      box-shadow: 0 15px 50px -10px rgba(var(--theme-color-rgb), 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 992px) {
+      transform: translateY(40px);
+      &:hover {
+        transform: translateY(30px);
+      }
+    }
+  }
+}
+
+.is-visible .plan-card {
+  opacity: 1;
+  transform: translateY(0);
+  
+  &.is-featured {
+    transform: scale(1.05) translateY(0);
+    
+    @media (max-width: 992px) {
+      transform: translateY(0);
+    }
+    @media (max-width: 768px) {
+      transform: scale(1) translateY(0); /* Disable scale on mobile for smooth swiping */
+    }
+  }
+  
+  &:hover {
+    transform: translateY(-10px);
+    
+    &.is-featured {
+      transform: scale(1.05) translateY(-10px);
+      
+      @media (max-width: 992px) {
+        transform: translateY(-10px);
+      }
+      @media (max-width: 768px) {
+        transform: scale(1) translateY(0); /* Disable hover translate on mobile */
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    transform: translateY(0);
+    
+    &:hover {
+      transform: translateY(0);
+    }
+  }
+}
+
+.plan-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--theme-color);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(var(--theme-color-rgb), 0.4);
+}
+
+.plan-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 15px;
+}
+
+.landing-page:not(.dark-theme) .plan-name {
+  color: #333;
+}
+
+.plan-price {
+  margin-bottom: 30px;
+  color: #fff;
+  
+  .currency {
+    font-size: 1.5rem;
+    font-weight: 500;
+    vertical-align: super;
+  }
+  
+  .amount {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  
+  .period {
+    font-size: 1rem;
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+}
+
+.landing-page:not(.dark-theme) .plan-price {
+  color: var(--theme-color);
+}
+
+.plan-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px;
+  flex-grow: 1;
+  
+  li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    
+    .check-icon {
+      color: var(--theme-color);
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.landing-page:not(.dark-theme) .plan-features-list li {
+  color: #555;
+}
+
+/* 浅色主题下套餐卡片调整 */
+.landing-page:not(.dark-theme) .plan-card {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  
+  &.is-featured {
+    background: rgba(var(--theme-color-rgb), 0.15);
+    border-color: rgba(var(--theme-color-rgb), 0.3);
+    box-shadow: 0 8px 32px rgba(var(--theme-color-rgb), 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+}
+
+.plan-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(var(--theme-color-rgb), 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  .is-featured & {
+    background: rgba(var(--theme-color-rgb), 0.15);
+    border-color: rgba(var(--theme-color-rgb), 0.4);
+    box-shadow: 0 0 15px rgba(var(--theme-color-rgb), 0.2);
+  }
+}
+
+.landing-page:not(.dark-theme) .plan-btn {
+  background: rgba(var(--theme-color-rgb), 0.05);
+  color: #333;
+}
+
+.landing-page:not(.dark-theme) .is-featured .plan-btn {
+  background: rgba(var(--theme-color-rgb), 0.1);
+  color: var(--theme-color);
+}
+
+.landing-page:not(.dark-theme) .plan-card:hover .plan-btn {
+  background: rgba(var(--theme-color-rgb), 0.15);
+  color: var(--theme-color);
+}
+
+.hide-arrow {
+  opacity: 0 !important;
+  pointer-events: none;
 }
 </style>

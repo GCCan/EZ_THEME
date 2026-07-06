@@ -183,7 +183,18 @@ export default {
         featureSecurity: 'Mã hóa bảo mật',
         featureSecurityDesc: 'Công nghệ mã hóa cấp quân sự bảo vệ quyền riêng tư và dữ liệu của bạn',
         scrollMore: 'Tìm hiểu thêm',
-        enterPanel: 'Bắt đầu'
+        enterPanel: 'Bắt đầu',
+        plansTitle: 'Chọn gói của bạn',
+        plansSubtitle: 'Cung cấp nhiều gói đăng ký linh hoạt để đáp ứng các nhu cầu khác nhau',
+        planBasic: 'Cơ bản',
+        planStandard: 'Tiêu chuẩn',
+        planPro: 'Cao cấp',
+        month: 'tháng',
+        buyNow: 'Mua ngay',
+        planFeature1: 'Lưu lượng tốc độ cao',
+        planFeature2: 'Phủ sóng toàn cầu',
+        planFeature3: 'Mở khóa streaming',
+        planFeature4: 'Hỗ trợ kỹ thuật ưu tiên'
     },
     dashboard: {
         welcome: 'Chào mừng trở lại',

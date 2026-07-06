@@ -185,7 +185,18 @@ export default {
     featureSecurity: 'セキュア暗号化',
     featureSecurityDesc: '軍事グレードの暗号化技術でプライバシーとデータセキュリティを保護',
     scrollMore: 'もっと見る',
-    enterPanel: '始めましょう'
+    enterPanel: '始めましょう',
+    plansTitle: 'プランを選択',
+    plansSubtitle: 'さまざまなニーズに対応する柔軟なプランをご用意',
+    planBasic: 'ベーシック',
+    planStandard: 'スタンダード',
+    planPro: 'プロ',
+    month: '月',
+    buyNow: '今すぐ購入',
+    planFeature1: '高速トラフィック',
+    planFeature2: 'グローバルノードカバレッジ',
+    planFeature3: 'ストリーミング解除',
+    planFeature4: '優先テクニカルサポート'
   },
   dashboard: {
     welcome: 'おかえりなさい',
