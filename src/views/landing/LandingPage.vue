@@ -245,7 +245,7 @@ export default {
           backgroundColor: bgColor,
           baseColor: parsedBaseColor,
           amplitudeFactor: isMobile ? 1.0 : 2.0, // 移动端降级，PC端增加灵动感
-          size: isMobile ? 1.2 : 2.5, // 增大光环体积，更有压迫感和视觉冲击力
+          size: isMobile ? 1.2 : 1.8, // 缩小电脑端的光环体积，避免过于拥挤
           xOffset: 0,
           yOffset: 0 // 视觉中心完全居中
         });
@@ -403,21 +403,12 @@ export default {
       isScrolling = true;
       currentSection.value = index;
       
-      // 滚动休眠机制：滑到下方区域时，直接隐藏 Vanta 容器。
-      // display: none 会被浏览器检测到，从而暂停 WebGL 内部的 requestAnimationFrame 渲染循环，让手机和电脑显卡彻底休息
+      // 恢复光环在其他页面的弱化显示。
+      // 之前为了极限省电彻底隐藏了它，既然噪点动画（真正的发热元凶）已经被干掉了，现在可以安全地让它以 30% 透明度作为背景了
       if (vantaRef.value) {
-        if (index > 0) {
-          vantaRef.value.style.opacity = '0';
-          setTimeout(() => {
-            if (currentSection.value > 0) vantaRef.value.style.display = 'none';
-          }, 800);
-        } else {
-          vantaRef.value.style.display = 'block';
-          // 给浏览器 50ms 的时间处理 DOM display:block，然后再恢复透明度
-          setTimeout(() => {
-            if (currentSection.value === 0) vantaRef.value.style.opacity = '1';
-          }, 50);
-        }
+        vantaRef.value.style.display = 'block';
+        vantaRef.value.style.opacity = index > 0 ? '0.3' : '1';
+        vantaRef.value.style.transition = 'opacity 0.8s ease';
       }
       
       setTimeout(() => { isScrolling = false; }, 800); // 对应 CSS transition 时长
