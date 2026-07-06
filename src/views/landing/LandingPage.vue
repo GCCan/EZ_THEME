@@ -94,6 +94,10 @@
               <button class="plan-btn" @click="navigateToLogin">{{ $t('landing.buyNow') }}</button>
             </div>
           </div>
+          
+          <div class="mobile-swipe-hint">
+            <div class="swipe-icon"></div>
+          </div>
         </div>
       </section>
 
@@ -184,15 +188,15 @@ export default {
     // 套餐数据
     const plans = [
       {
-        nameKey: 'landing.planBasic',
-        price: '15',
-        featuresKey: ['landing.planFeature1', 'landing.planFeature2']
-      },
-      {
         nameKey: 'landing.planStandard',
         price: '25',
         featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3'],
         featured: true
+      },
+      {
+        nameKey: 'landing.planBasic',
+        price: '15',
+        featuresKey: ['landing.planFeature1', 'landing.planFeature2']
       },
       {
         nameKey: 'landing.planPro',
@@ -1481,6 +1485,58 @@ export default {
   }
 }
 
+.mobile-swipe-hint {
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    opacity: 0;
+    animation: swipeHintPulse 2s infinite, swipeHintFadeIn 1s ease forwards 1s;
+    pointer-events: none;
+  }
+}
+
+.swipe-icon {
+  width: 36px;
+  height: 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  position: relative;
+  
+  .landing-page:not(.dark-theme) & {
+    border-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 6px;
+    width: 6px;
+    height: 6px;
+    background: var(--theme-color);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    animation: swipeLeftRight 2s ease-in-out infinite;
+  }
+}
+
+@keyframes swipeLeftRight {
+  0%, 100% { left: 5px; }
+  50% { left: 22px; }
+}
+@keyframes swipeHintPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+@keyframes swipeHintFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .plan-card {
   position: relative;
   background: rgba(255, 255, 255, 0.08);
@@ -1519,7 +1575,7 @@ export default {
   @media (max-width: 768px) {
     min-width: 85vw;
     scroll-snap-align: center;
-    padding: 30px 24px;
+    padding: 24px 20px;
     
     /* On mobile, reset initial translate so it doesn't break horizontal flow */
     transform: translateY(0);
@@ -1612,6 +1668,11 @@ export default {
   font-weight: 600;
   color: #fff;
   margin: 0 0 15px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
 }
 
 .landing-page:not(.dark-theme) .plan-name {
@@ -1640,6 +1701,14 @@ export default {
     opacity: 0.7;
     margin-left: 4px;
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+    
+    .currency { font-size: 1.2rem; }
+    .amount { font-size: 2.8rem; }
+    .period { font-size: 0.85rem; }
+  }
 }
 
 .landing-page:not(.dark-theme) .plan-price {
@@ -1663,6 +1732,21 @@ export default {
       color: var(--theme-color);
       margin-right: 12px;
       flex-shrink: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+    
+    li {
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      
+      .check-icon {
+        margin-right: 8px;
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 }
@@ -1702,6 +1786,11 @@ export default {
     background: rgba(var(--theme-color-rgb), 0.15);
     border-color: rgba(var(--theme-color-rgb), 0.4);
     box-shadow: 0 0 15px rgba(var(--theme-color-rgb), 0.2);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 0.95rem;
   }
 }
 
