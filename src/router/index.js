@@ -363,6 +363,25 @@ const routes = [
 
       {
 
+        path: 'order/:tradeNo?',
+
+        name: 'OrderLegacy',
+
+        component: () => import('@/views/shop/Payment.vue'),
+
+        meta: {
+
+          titleKey: 'orders.payment',
+
+          requiresAuth: true,
+
+          activeNav: 'Shop' 
+        }
+
+      },
+
+      {
+
         path: 'invite',
 
         name: 'Invite',
@@ -643,6 +662,15 @@ const router = createRouter({
 
 
 router.beforeEach(async (to, from, next) => {
+  // 兼容处理：如果匹配到 NotFound 或未定义路径，但 Query/Search 中包含支付订单号，自动纠偏重定向至 Payment 页面
+  if (to.name === 'NotFound') {
+    const searchParams = new URLSearchParams(window.location.search || '');
+    const tradeNo = to.query.trade_no || to.query.out_trade_no || searchParams.get('trade_no') || searchParams.get('out_trade_no');
+    if (tradeNo) {
+      next({ name: 'Payment', query: { trade_no: tradeNo } });
+      return;
+    }
+  }
 
   if (to.name !== 'BrowserRestricted' && isBrowserRestricted()) {
 

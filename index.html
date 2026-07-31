@@ -10,6 +10,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!--EZ_CONFIG_SCRIPT-->
+    <script>
+      (function() {
+        try {
+          var path = window.location.pathname;
+          var search = window.location.search;
+          var hash = window.location.hash;
+          var hasTradeNo = /[?&](trade_no|out_trade_no)=/.test(search) || /[?&](trade_no|out_trade_no)=/.test(hash) || /\/(payment|order)/.test(path);
+          if (!hash.startsWith('#/') && hasTradeNo) {
+            var tradeNoMatch = (search + hash + path).match(/(trade_no|out_trade_no)=([^&]+)/);
+            var tradeNoParam = tradeNoMatch ? '?trade_no=' + tradeNoMatch[2] : search;
+            var targetHash = '#/payment' + (tradeNoParam ? (tradeNoParam.startsWith('?') ? tradeNoParam : '?' + tradeNoParam) : '');
+            window.location.replace(window.location.origin + '/' + targetHash);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <style>
         @media (min-width: 769px) {
             html, body, div, main, section, article, aside, nav {
