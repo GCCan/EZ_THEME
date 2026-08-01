@@ -165,7 +165,7 @@ export const AUTHORIZED_DOMAINS = getConfig('AUTHORIZED_DOMAINS', DEFAULT_AUTHOR
  */
 const DEFAULT_CAPTCHA_CONFIG = {
     // 验证方式: 'google' 或 'cloudflare'
-    captchaType: 'google',
+    captchaType: 'cloudflare',
 
     // Google reCAPTCHA 配置 默认v2
     google: {
