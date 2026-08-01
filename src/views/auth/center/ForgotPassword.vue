@@ -635,7 +635,15 @@ export default {
 
           if (config.is_recaptcha === 1) {
 
-            captchaConfig.siteKey = config.recaptcha_site_key;
+            if (config.captcha_type === 'turnstile') {
+              captchaConfig.type = 'cloudflare';
+            } else if (config.captcha_type === 'recaptcha') {
+              captchaConfig.type = 'google';
+            }
+
+            captchaConfig.siteKey = captchaConfig.type === 'cloudflare'
+              ? (config.turnstile_site_key || config.recaptcha_site_key)
+              : config.recaptcha_site_key;
 
 
 
@@ -667,7 +675,7 @@ export default {
 
       return new Promise((resolve) => {
 
-        if (config.is_recaptcha !== 1 || !config.recaptcha_site_key) {
+        if (config.is_recaptcha !== 1 || !captchaConfig.siteKey) {
 
           resolve();
 
