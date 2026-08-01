@@ -1034,14 +1034,14 @@ export default {
     const handlePopupClose = () => {
 
       showPopup.value = false;
-      // console.log(showPopup.value,'111111111')
+
       // nextPeriod()
 
     };
     const handlePopupConfirm = async () => {
       try {
         const response = await setNextPeriod()
-        console.log(response)
+
         if (response.data) {
           await fetchSubscribe()
           showToast(t('dashboard.nextPeriodSuccess'), 'success');
@@ -1066,25 +1066,25 @@ export default {
         return;
       }
 
-      console.log('开始请求：设置 isCreatingResetOrder = true');
+
       isCreatingResetOrder.value = true;
 
       try {
         if (!userPlanId.value) {
           showToast(t('common.error_occurred'), 'error');
-          console.log('无套餐ID：重置 isCreatingResetOrder = false');
+
           isCreatingResetOrder.value = false;
           return;
         }
 
-        console.log('正在调用API，当前状态：', isCreatingResetOrder.value);
+
         const response = await submitOrder({
           plan_id: userPlanId.value,
           period: 'reset_price'
         });
 
         if (response && response.data) {
-          console.log('API请求成功');
+
           showToast(t('dashboard.resetTrafficSuccess'), 'success');
 
           closeResetTrafficModal();
@@ -1100,7 +1100,7 @@ export default {
         console.error('创建重置流量订单失败:', error);
         showToast(error.message || t('common.error_occurred'), 'error');
       } finally {
-        console.log('请求结束：重置 isCreatingResetOrder = false');
+
         isCreatingResetOrder.value = false;
       }
     };
@@ -1769,7 +1769,7 @@ export default {
     };
 
     onActivated(() => {
-      console.log('Dashboard组件被激活');
+
       if (needRefreshData.value) {
         fetchUserInfo();
         fetchUserStats();
@@ -1781,7 +1781,7 @@ export default {
     });
 
     onDeactivated(() => {
-      console.log('Dashboard组件被停用');
+
       needRefreshData.value = true;
 
       cleanupResources(timers, listeners);

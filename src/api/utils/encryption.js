@@ -30,7 +30,6 @@ export function Encrypt(data, k, i) {
     });
     return encrypted.toString();
   } catch (error) {
-    console.log(error);
   }
 }
 
@@ -47,7 +46,6 @@ export function Decrypt(data, k, i) {
     var decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
     return decryptedStr.toString();
   } catch (error) {
-    console.log(error);
   }
 }
 

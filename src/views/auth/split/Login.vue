@@ -266,7 +266,6 @@ export default {
         try {
           const tokenLoginResult = await handleTokenLogin({
             onLoginSuccess: () => {
-              console.log('令牌验证登录成功');
             }
           });
 
@@ -285,7 +284,6 @@ export default {
       const isJustLoggedOut = urlParams.get('logout') === 'true';
 
       if (isJustLoggedOut) {
-        console.log('检测到用户刚刚登出，清除所有登录状态');
         showToast(t('auth.logoutSuccess'), 'success', 3000);
 
         if (window.history && window.history.replaceState) {
@@ -298,14 +296,12 @@ export default {
 
       try {
         if (window._isLoggingOut === true) {
-          console.log('检测到全局登出标记，跳过登录状态检查');
           return;
         }
 
         const loginStatus = checkLoginStatus();
 
         if (loginStatus) {
-          console.log('用户已登录，准备跳转到控制面板');
           showToast(t('auth.alreadyLoggedIn'), 'info');
           setTimeout(() => {
             router.push('/dashboard');

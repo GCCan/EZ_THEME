@@ -61,7 +61,6 @@ request.interceptors.request.use(
       config.url = isEncrypted ? path : mapApiPath(config.url);
       
       if (import.meta.env.DEV) {
-        console.log(`API路径映射: ${originalUrl} -> ${config.url}`);
       }
     }
     else if (window.EZ_CONFIG && window.EZ_CONFIG.API_BASE_URLS &&
@@ -111,7 +110,6 @@ request.interceptors.response.use(
       const res = response.data;
       
       if (res && res.message === '未登录或登陆已过期') {
-        console.log('检测到登录已过期，执行登出操作');
         clearExpiredAuthState();
         window.location.href = '/#/login';
         return Promise.reject(new Error(res.message));

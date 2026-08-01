@@ -410,7 +410,6 @@ export default {
 
             onLoginSuccess: () => {
 
-              console.log('令牌验证登录成功');
 
             }
 
@@ -448,7 +447,6 @@ export default {
 
       if (isJustLoggedOut) {
 
-        console.log('检测到用户刚刚登出，清除所有登录状态');
 
         showToast(t('auth.logoutSuccess'), 'success', 3000);
 
@@ -478,7 +476,6 @@ export default {
 
         if (window._isLoggingOut === true) {
 
-          console.log('检测到全局登出标记，跳过登录状态检查');
 
           return;
 
@@ -492,7 +489,6 @@ export default {
 
         if (loginStatus) {
 
-          console.log('用户已登录，准备跳转到控制面板');
 
           showToast(t('auth.alreadyLoggedIn'), 'info');
 

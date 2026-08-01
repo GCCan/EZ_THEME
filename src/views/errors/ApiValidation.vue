@@ -206,7 +206,6 @@ export default {
 
       if (storedUrl) {
 
-        console.log('使用已验证的API URL');
 
         availableApiUrl.value = storedUrl;
 
@@ -220,7 +219,6 @@ export default {
 
       totalApis.value = staticBaseUrls.length;
 
-      console.log('开始并发竞速检测API可用性...');
 
       
 
@@ -230,7 +228,6 @@ export default {
 
         try {
 
-          console.log(`并发检测API节点 ${index + 1}/${totalApis.value}: ${url}`);
 
           const result = await testApiEndpoint(url);
 
@@ -272,7 +269,6 @@ export default {
 
           checkedCount.value++;
 
-          console.log(`API节点 ${index + 1}/${totalApis.value} 检测失败`);
 
           return {
 
@@ -314,7 +310,6 @@ export default {
 
         const fastestApi = availableResults[0];
 
-        console.log(`找到最快的可用API节点: ${fastestApi.url}，响应时间: ${fastestApi.responseTime}ms`);
 
         sessionStorage.setItem('ez_api_available_url', fastestApi.url);
 
@@ -348,7 +343,6 @@ export default {
 
       const defaultUrl = window.EZ_CONFIG.API_CONFIG.staticBaseUrl[0];
 
-      console.log('使用默认API节点');
 
       sessionStorage.setItem('ez_api_available_url', defaultUrl);
 
@@ -445,7 +439,6 @@ export default {
 
         const responseTime = Math.round(endTime - startTime);
 
-        console.log(`测试API节点失败: ${baseUrl}`);
 
         return {
 

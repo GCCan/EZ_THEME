@@ -682,7 +682,6 @@ export default {
 
     watch(() => selectedFilter.value, () => {
 
-      console.log('筛选条件变化为:', selectedFilter.value);
 
     });
 
@@ -690,7 +689,6 @@ export default {
 
     watch(() => currentLanguage.value, () => {
 
-      console.log('语言变化为:', currentLanguage.value);
 
     });
 
