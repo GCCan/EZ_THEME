@@ -622,6 +622,7 @@ import AuthPopup from '@/components/auth/AuthPopup.vue';
 import { shouldShowAuthPopup } from '@/utils/authPopupState';
 
 import { useNavigator } from "@/composables/useNavigator";
+import { applyCaptchaToken } from '@/utils/captcha';
 
 
 
@@ -1271,7 +1272,7 @@ export default {
 
         if (captchaData) {
 
-          sendData.recaptcha_data = captchaData;
+          applyCaptchaToken(sendData, config, captchaData);
 
         }
 
@@ -1571,11 +1572,11 @@ export default {
 
           if (formCaptchaElement && formCaptchaElement.value) {
 
-            registerData.recaptcha_data = formCaptchaElement.value;
+            applyCaptchaToken(registerData, config, formCaptchaElement.value);
 
           } else if (captchaResponse.value) {
 
-            registerData.recaptcha_data = captchaResponse.value;
+            applyCaptchaToken(registerData, config, captchaResponse.value);
 
           }
 

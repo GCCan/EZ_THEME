@@ -606,6 +606,7 @@ import { shouldShowAuthPopup } from '@/utils/authPopupState';
 
 import { useNavigator } from '@/composables/useNavigator'
 import { buildRegisterPayload } from '../composables/registerValidation';
+import { applyCaptchaToken } from '@/utils/captcha';
 
 window.onCaptchaVerified = function(response) {
 
@@ -1173,7 +1174,7 @@ export default {
 
         if (captchaData) {
 
-          sendData.recaptcha_data = captchaData;
+          applyCaptchaToken(sendData, config, captchaData);
 
         }
 

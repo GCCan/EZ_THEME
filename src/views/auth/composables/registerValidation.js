@@ -1,4 +1,5 @@
 import { isValidEmail } from '@/utils/validators';
+import { applyCaptchaToken } from '@/utils/captcha';
 
 export const buildRegisterPayload = ({ formData, config, captchaResponse }) => {
   const payload = {
@@ -15,7 +16,7 @@ export const buildRegisterPayload = ({ formData, config, captchaResponse }) => {
   }
 
   if (config.is_recaptcha === 1 && captchaResponse) {
-    payload.recaptcha_data = captchaResponse;
+    applyCaptchaToken(payload, config, captchaResponse);
   }
 
   return payload;
