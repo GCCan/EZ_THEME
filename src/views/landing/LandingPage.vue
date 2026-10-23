@@ -1,5 +1,5 @@
 <template>
-  <div class="landing-page" tabindex="0" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': preloaderDone }" @wheel="handleWheel" @touchstart.passive="handleTouchStart" @touchend.passive="handleTouchEnd" @keydown="handleKeydown" ref="landingPageRef">
+  <div class="landing-page" tabindex="0" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': preloaderDone }" ref="landingPageRef">
     
     <div ref="vantaRef" class="vanta-background" aria-hidden="true"></div>
     <div class="background-overlay" :class="{ 'is-dimmed': currentSection > 0 }" aria-hidden="true"></div>
@@ -17,10 +17,10 @@
     </div>
     
     <!-- 全屏分页滚动容器 -->
-    <div class="sections-wrapper" :style="{ transform: `translateY(-${currentSection * 100}%)` }">
+    <div class="sections-wrapper">
       
       <!-- 第一屏：Hero -->
-      <section class="fullpage-section section-hero" :inert="currentSection !== 0" :aria-hidden="currentSection !== 0">
+      <section class="fullpage-section section-hero">
         <div class="content-container">
           <div class="hero-content">
             <img v-if="siteConfig.showLogo" src="/images/logo.png" :alt="siteConfig.siteName" class="hero-logo" />
@@ -40,7 +40,7 @@
       </section>
 
       <!-- 第二屏：介绍页 -->
-      <section class="fullpage-section section-intro" :inert="currentSection !== 1" :aria-hidden="currentSection !== 1">
+      <section class="fullpage-section section-intro">
         <div class="intro-container" :class="{ 'is-visible': currentSection === 1 }">
           <h2 class="intro-title">{{ $t('landing.introTitle') }}</h2>
           <p class="intro-subtitle">{{ $t('landing.introSubtitle') }}</p>
@@ -60,7 +60,7 @@
       </section>
 
       <!-- 第三屏：套餐页 -->
-      <section class="fullpage-section section-plans" :inert="currentSection !== 2" :aria-hidden="currentSection !== 2">
+      <section class="fullpage-section section-plans">
         <div class="plans-container" :class="{ 'is-visible': currentSection === 2 }">
           <h2 class="intro-title">{{ $t('landing.plansTitle') }}</h2>
           <p class="intro-subtitle">{{ $t('landing.plansSubtitle') }}</p>
@@ -145,11 +145,10 @@ const plans = [
 let vantaEffect;
 let disposed = false;
 let backgroundVersion = 0;
-let scrollTimer;
+let scrollFrame;
 let transitionTimer;
 let entranceFrame;
-let isScrolling = false;
-let touchStart = null;
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const initVanta = async () => {
@@ -177,49 +176,25 @@ const initVanta = async () => {
 };
 watch(isDarkTheme, initVanta);
 
+// Let the document perform real scrolling so Safari can manage its own toolbars.
 const goToSection = (index) => {
-  if (index < 0 || index >= totalSections || index === currentSection.value || isTransitioning.value) return;
-  currentSection.value = index;
-  isScrolling = true;
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(() => { isScrolling = false; }, reducedMotion.matches ? 0 : 800);
+  if (index < 0 || index >= totalSections || isTransitioning.value) return;
+  const section = landingPageRef.value?.querySelectorAll('.fullpage-section')[index];
+  section?.scrollIntoView({ behavior: reducedMotion.matches ? 'instant' : 'smooth', block: 'start' });
 };
-// Allow tall sections and the horizontal plan list to consume their own scroll first.
-const canScrollWithin = (target, delta) => {
-  let element = target instanceof Element ? target : null;
-  while (element && element !== landingPageRef.value) {
-    if (element.scrollHeight > element.clientHeight + 2 && /auto|scroll/.test(getComputedStyle(element).overflowY)) {
-      if (delta > 0 && element.scrollTop + element.clientHeight < element.scrollHeight - 2) return true;
-      if (delta < 0 && element.scrollTop > 2) return true;
-    }
-    element = element.parentElement;
-  }
-  return false;
+const updateCurrentSection = () => {
+  scrollFrame = null;
+  const sections = landingPageRef.value?.querySelectorAll('.fullpage-section');
+  if (!sections) return;
+  const viewportMiddle = window.innerHeight / 2;
+  let active = 0;
+  sections.forEach((section, index) => {
+    if (section.getBoundingClientRect().top <= viewportMiddle) active = index;
+  });
+  currentSection.value = active;
 };
-const handleWheel = (event) => {
-  if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY) || canScrollWithin(event.target, event.deltaY)) return;
-  event.preventDefault();
-  if (isScrolling || Math.abs(event.deltaY) < 30) return;
-  goToSection(currentSection.value + Math.sign(event.deltaY));
-};
-const handleTouchStart = (event) => {
-  touchStart = event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY, target: event.target } : null;
-};
-const handleTouchEnd = (event) => {
-  if (!touchStart || !event.changedTouches.length) return;
-  const deltaY = touchStart.y - event.changedTouches[0].clientY;
-  const deltaX = touchStart.x - event.changedTouches[0].clientX;
-  const target = touchStart.target;
-  touchStart = null;
-  if (isScrolling || Math.abs(deltaY) < 60 || Math.abs(deltaX) >= Math.abs(deltaY) || canScrollWithin(target, deltaY)) return;
-  goToSection(currentSection.value + Math.sign(deltaY));
-};
-const handleKeydown = (event) => {
-  if (event.target.closest('button, a, input, textarea, select, [contenteditable]') || event.altKey || event.ctrlKey || event.metaKey) return;
-  const direction = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[event.key];
-  if (!direction || canScrollWithin(event.target, direction)) return;
-  event.preventDefault();
-  goToSection(currentSection.value + direction);
+const handleDocumentScroll = () => {
+  if (scrollFrame == null) scrollFrame = requestAnimationFrame(updateCurrentSection);
 };
 const navigateToLogin = () => {
   if (isTransitioning.value) return;
@@ -231,6 +206,10 @@ const navigateToLogin = () => {
 };
 const handleArrowClick = () => currentSection.value < totalSections - 1 ? goToSection(currentSection.value + 1) : navigateToLogin();
 onMounted(() => {
+  document.documentElement.dataset.landingScroll = 'native';
+  window.addEventListener('scroll', handleDocumentScroll, { passive: true });
+  window.addEventListener('resize', handleDocumentScroll, { passive: true });
+  updateCurrentSection();
   entranceFrame = requestAnimationFrame(() => { preloaderDone.value = true; });
   themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   isDarkTheme.value = document.body.classList.contains('dark-theme');
@@ -240,10 +219,13 @@ onMounted(() => {
 });
 onUnmounted(() => {
   disposed = true;
+  delete document.documentElement.dataset.landingScroll;
+  window.removeEventListener('scroll', handleDocumentScroll);
+  window.removeEventListener('resize', handleDocumentScroll);
+  if (scrollFrame != null) cancelAnimationFrame(scrollFrame);
   themeObserver.disconnect();
   backgroundVersion++;
   vantaEffect?.destroy();
-  clearTimeout(scrollTimer);
   clearTimeout(transitionTimer);
   cancelAnimationFrame(entranceFrame);
   document.removeEventListener('visibilitychange', initVanta);
@@ -259,9 +241,8 @@ onUnmounted(() => {
   --landing-border: rgba(32, 75, 73, .13);
   position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100svh;
   color: var(--landing-ink);
   background: #f5f8f6;
   isolation: isolate;
@@ -276,7 +257,7 @@ onUnmounted(() => {
   button { font: inherit; cursor: pointer; }
   button:focus-visible { outline: 3px solid var(--theme-color); outline-offset: 5px; }
 }
-.vanta-background, .background-overlay { position: absolute; inset: 0; pointer-events: none; }
+.vanta-background, .background-overlay { position: fixed; inset: 0; pointer-events: none; }
 .vanta-background {
   z-index: -3;
   background: radial-gradient(ellipse at 50% 42%, rgba(var(--theme-color-rgb), .17), transparent 60%);
@@ -291,13 +272,13 @@ onUnmounted(() => {
   background: radial-gradient(ellipse at center, rgba(9, 14, 19, .08), rgba(9, 14, 19, .8));
   &.is-dimmed { background: rgba(9, 14, 19, .86); }
 }
-.brand-mark { position: absolute; top: calc(30px + env(safe-area-inset-top)); left: max(40px, env(safe-area-inset-left)); z-index: 20; font-size: 14px; font-weight: 750; letter-spacing: -.3px; display: flex; align-items: center; gap: 10px; }
+.brand-mark { position: fixed; top: calc(30px + env(safe-area-inset-top)); left: max(40px, env(safe-area-inset-left)); z-index: 20; font-size: 14px; font-weight: 750; letter-spacing: -.3px; display: flex; align-items: center; gap: 10px; }
 .brand-dot, .pulse-dot { width: 6px; height: 6px; background: var(--theme-color); border-radius: 50%; flex-shrink: 0; }
-.top-toolbar { position: absolute; top: calc(20px + env(safe-area-inset-top)); right: max(32px, env(safe-area-inset-right)); z-index: 30; display: flex; align-items: center; gap: 8px; }
+.top-toolbar { position: fixed; top: calc(20px + env(safe-area-inset-top)); right: max(32px, env(safe-area-inset-right)); z-index: 30; display: flex; align-items: center; gap: 8px; }
 .enter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; min-height: 40px; border: 1px solid var(--landing-border); border-radius: 999px; color: var(--landing-ink); background: var(--landing-surface); font-size: 13px !important; }
 .top-toolbar :deep(.theme-toggle), .top-toolbar :deep(.language-btn) { color: var(--landing-ink); background: var(--landing-surface); border: 1px solid var(--landing-border); box-shadow: none; }
-.sections-wrapper { width: 100%; height: 100%; transition: transform .75s cubic-bezier(.65, 0, .35, 1); }
-.fullpage-section { width: 100%; height: 100%; padding: calc(100px + env(safe-area-inset-top)) max(64px, env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(64px, env(safe-area-inset-left)); overflow-y: auto; overscroll-behavior: contain; display: flex; align-items: safe center; justify-content: center; }
+.sections-wrapper { width: 100%; }
+.fullpage-section { width: 100%; min-height: 100vh; min-height: 100svh; scroll-snap-align: start; padding: calc(100px + env(safe-area-inset-top)) max(64px, env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(64px, env(safe-area-inset-left)); display: flex; align-items: safe center; justify-content: center; }
 .content-container, .intro-container, .plans-container { width: 100%; margin: auto; text-align: center; }
 .intro-container { max-width: 1080px; }
 .plans-container { max-width: 1120px; }
@@ -333,14 +314,14 @@ onUnmounted(() => {
 .check-icon { color: var(--theme-color); flex-shrink: 0; }
 .plan-btn { width: 100%; min-height: 44px; border: 1px solid var(--landing-border); border-radius: 10px; color: var(--landing-ink); background: transparent; font-size: 13px !important; font-weight: 600 !important; }
 .is-featured .plan-btn { background: color-mix(in srgb, var(--theme-color), #102e28 28%); color: #fff; border-color: transparent; }
-.page-indicators { position: absolute; right: max(22px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 20; }
+.page-indicators { position: fixed; right: max(22px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 20; }
 .indicator-dot { width: 28px; height: 28px; border: 0; background: transparent; display: grid; place-items: center; padding: 0; }
 .indicator-dot::after { content: ''; width: 5px; height: 5px; border-radius: 6px; background: var(--landing-muted); opacity: .4; transition: height .25s, opacity .25s; }
 .indicator-dot.active::after { height: 22px; background: var(--theme-color); opacity: 1; }
-.scroll-arrow-container { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; color: var(--landing-muted); padding: 4px 16px; }
+.scroll-arrow-container { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; color: var(--landing-muted); padding: 4px 16px; }
 .scroll-arrow { line-height: 0; }
 .scroll-text { font-size: 11px; letter-spacing: .05em; white-space: nowrap; }
-.page-transition-mask { position: absolute; inset: 0; z-index: 100; background: var(--background-color); pointer-events: none; opacity: 0; transition: opacity .25s; &.active { opacity: 1; pointer-events: auto; } }
+.page-transition-mask { position: fixed; inset: 0; z-index: 100; background: var(--background-color); pointer-events: none; opacity: 0; transition: opacity .25s; &.active { opacity: 1; pointer-events: auto; } }
 @media (hover: hover) {
   .primary-btn:hover, .secondary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(var(--theme-color-rgb), .16); }
   .feature-card:hover, .landing-plan-card:hover { border-color: rgba(var(--theme-color-rgb), .5); }
