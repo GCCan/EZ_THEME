@@ -155,8 +155,8 @@ const initVanta = async () => {
   const version = ++backgroundVersion;
   vantaEffect?.destroy();
   vantaEffect = null;
-  // Light mode uses a purpose-built CSS background; motion-sensitive users get the same fallback.
-  if (!isDarkTheme.value || reducedMotion.matches || document.hidden) return;
+  // Both themes keep the animated halo; motion-sensitive users get the CSS fallback.
+  if (reducedMotion.matches || document.hidden) return;
   try {
     const [THREE, { default: HALO }] = await Promise.all([import('three'), import('vanta/src/vanta.halo')]);
     if (disposed || version !== backgroundVersion || !vantaRef.value) return;
@@ -165,11 +165,16 @@ const initVanta = async () => {
       el: vantaRef.value, THREE,
       mouseControls: window.matchMedia('(pointer: fine)').matches,
       touchControls: false, gyroControls: false,
-      backgroundColor: 0x090e13,
+      backgroundColor: isDarkTheme.value ? 0x090e13 : 0x000000,
       baseColor: /^#[0-9a-f]{6}$/i.test(color) ? parseInt(color.slice(1), 16) : 0x10b981,
       amplitudeFactor: 1.2, size: window.innerWidth <= 768 ? 1.1 : 1.6,
       xOffset: 0, yOffset: 0.05, minHeight: 200, minWidth: 200
     });
+    // HALO's shader writes raw RGB without Three.js's output color conversion.
+    // Modern THREE.Color converts hex input to linear RGB, making #090e13
+    // render almost black. Supply display RGB so the canvas matches CSS/Safari.
+    const backgroundRGB = isDarkTheme.value ? [9 / 255, 14 / 255, 19 / 255] : [0, 0, 0];
+    vantaEffect.uniforms.backgroundColor.value.set(...backgroundRGB);
   } catch (error) {
     console.warn('Landing background unavailable; using CSS fallback.', error);
   }
@@ -261,6 +266,29 @@ onUnmounted(() => {
 .vanta-background {
   z-index: -3;
   background: radial-gradient(ellipse at 50% 42%, rgba(var(--theme-color-rgb), .17), transparent 60%);
+  // WebGL paints opaque pixels that can differ from its configured background.
+  // Fade the whole canvas to the document color before either safe-area edge.
+  --halo-top-edge: max(24px, env(safe-area-inset-top, 0px));
+  --halo-bottom-edge: max(24px, env(safe-area-inset-bottom, 0px));
+  --halo-edge-mask: linear-gradient(to bottom,
+    transparent 0,
+    transparent var(--halo-top-edge),
+    #000 calc(var(--halo-top-edge) + 120px),
+    #000 calc(100% - var(--halo-bottom-edge) - 120px),
+    transparent calc(100% - var(--halo-bottom-edge)),
+    transparent 100%);
+  -webkit-mask-image: var(--halo-edge-mask);
+  mask-image: var(--halo-edge-mask);
+}
+.landing-page:not(.dark-theme) .vanta-background {
+  background-color: #f5f8f6;
+}
+.landing-page:not(.dark-theme) .vanta-background :deep(canvas) {
+  // Invert only the black-backed canvas, then blend its white field into the
+  // light page color. The surrounding DOM and Safari sampling color stay intact.
+  filter: invert(1) hue-rotate(180deg);
+  mix-blend-mode: multiply;
+  opacity: .45;
 }
 .background-overlay {
   z-index: -2;
