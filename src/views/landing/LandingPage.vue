@@ -291,13 +291,13 @@ onUnmounted(() => {
   background: radial-gradient(ellipse at center, rgba(9, 14, 19, .08), rgba(9, 14, 19, .8));
   &.is-dimmed { background: rgba(9, 14, 19, .86); }
 }
-.brand-mark { position: absolute; top: calc(30px + env(safe-area-inset-top)); left: 40px; z-index: 20; font-size: 14px; font-weight: 750; letter-spacing: -.3px; display: flex; align-items: center; gap: 10px; }
+.brand-mark { position: absolute; top: calc(30px + env(safe-area-inset-top)); left: max(40px, env(safe-area-inset-left)); z-index: 20; font-size: 14px; font-weight: 750; letter-spacing: -.3px; display: flex; align-items: center; gap: 10px; }
 .brand-dot, .pulse-dot { width: 6px; height: 6px; background: var(--theme-color); border-radius: 50%; flex-shrink: 0; }
-.top-toolbar { position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 32px; z-index: 30; display: flex; align-items: center; gap: 8px; }
+.top-toolbar { position: absolute; top: calc(20px + env(safe-area-inset-top)); right: max(32px, env(safe-area-inset-right)); z-index: 30; display: flex; align-items: center; gap: 8px; }
 .enter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; min-height: 40px; border: 1px solid var(--landing-border); border-radius: 999px; color: var(--landing-ink); background: var(--landing-surface); font-size: 13px !important; }
 .top-toolbar :deep(.theme-toggle), .top-toolbar :deep(.language-btn) { color: var(--landing-ink); background: var(--landing-surface); border: 1px solid var(--landing-border); box-shadow: none; }
 .sections-wrapper { width: 100%; height: 100%; transition: transform .75s cubic-bezier(.65, 0, .35, 1); }
-.fullpage-section { width: 100%; height: 100%; padding: calc(100px + env(safe-area-inset-top)) 64px calc(90px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; display: flex; align-items: safe center; justify-content: center; }
+.fullpage-section { width: 100%; height: 100%; padding: calc(100px + env(safe-area-inset-top)) max(64px, env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(64px, env(safe-area-inset-left)); overflow-y: auto; overscroll-behavior: contain; display: flex; align-items: safe center; justify-content: center; }
 .content-container, .intro-container, .plans-container { width: 100%; margin: auto; text-align: center; }
 .intro-container { max-width: 1080px; }
 .plans-container { max-width: 1120px; }
@@ -333,7 +333,7 @@ onUnmounted(() => {
 .check-icon { color: var(--theme-color); flex-shrink: 0; }
 .plan-btn { width: 100%; min-height: 44px; border: 1px solid var(--landing-border); border-radius: 10px; color: var(--landing-ink); background: transparent; font-size: 13px !important; font-weight: 600 !important; }
 .is-featured .plan-btn { background: color-mix(in srgb, var(--theme-color), #102e28 28%); color: #fff; border-color: transparent; }
-.page-indicators { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 20; }
+.page-indicators { position: absolute; right: max(22px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 20; }
 .indicator-dot { width: 28px; height: 28px; border: 0; background: transparent; display: grid; place-items: center; padding: 0; }
 .indicator-dot::after { content: ''; width: 5px; height: 5px; border-radius: 6px; background: var(--landing-muted); opacity: .4; transition: height .25s, opacity .25s; }
 .indicator-dot.active::after { height: 22px; background: var(--theme-color); opacity: 1; }
@@ -347,10 +347,10 @@ onUnmounted(() => {
   .plan-btn:hover, .enter-btn:hover { border-color: var(--theme-color); }
 }
 @media (max-width: 768px) {
-  .brand-mark { left: 20px; top: calc(27px + env(safe-area-inset-top)); max-width: 32%; overflow: hidden; white-space: nowrap; font-size: 11px; }
-  .top-toolbar { top: calc(16px + env(safe-area-inset-top)); right: 16px; gap: 6px; }
+  .brand-mark { left: max(20px, env(safe-area-inset-left)); top: calc(27px + env(safe-area-inset-top)); max-width: 32%; overflow: hidden; white-space: nowrap; font-size: 11px; }
+  .top-toolbar { top: calc(16px + env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); gap: 6px; }
   .enter-btn { padding: 8px 12px; font-size: 11px !important; }
-  .fullpage-section { padding-left: 24px; padding-right: 40px; }
+  .fullpage-section { padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(40px, env(safe-area-inset-right)); }
   .hero-logo { width: 54px; height: 54px; margin-bottom: 24px; }
   .hero-highlights { gap: 10px 14px; font-size: 11px; }
   .hero-actions { margin-top: 28px; }
@@ -363,7 +363,7 @@ onUnmounted(() => {
   .feature-desc { font-size: 12px; line-height: 1.7; }
   .plans-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding: 14px 0 16px; gap: 14px; scrollbar-width: thin; scrollbar-color: var(--theme-color) transparent; }
   .landing-plan-card { flex: 0 0 88%; scroll-snap-align: center; padding: 28px 24px; }
-  .page-indicators { right: 4px; }
+  .page-indicators { right: max(4px, env(safe-area-inset-right)); }
 }
 @media (max-width: 380px) { .brand-mark { display: none; } }
 @media (prefers-reduced-motion: reduce) {

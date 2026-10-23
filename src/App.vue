@@ -97,6 +97,7 @@ import ResourcePreloader from '@/components/common/ResourcePreloader.vue';
 import { IconGift } from '@tabler/icons-vue';
 import pageCache from '@/utils/pageCache';
 import { useToast } from '@/composables/useToast';
+import { syncBrowserChrome } from '@/utils/browserChrome';
 
 export default {
   name: 'App',
@@ -120,6 +121,11 @@ export default {
     const store = useStore();
     const { applyTheme } = useTheme();
     const siteConfig = ref(SITE_CONFIG);
+    const updateBrowserChrome = () => {
+      syncBrowserChrome(route.path === '/landing' && !SITE_CONFIG.customLandingPage);
+    };
+    const browserChromeObserver = new MutationObserver(updateBrowserChrome);
+    watch(() => route.path, updateBrowserChrome, { flush: 'post' });
     const cachedRoutes = computed(() => pageCache.getCachedRoutes());
     
     const customerServiceConfig = computed(() => CUSTOMER_SERVICE_CONFIG);
@@ -216,6 +222,9 @@ export default {
       window.addEventListener('languageChanged', onLanguageChanged);
       
       applyTheme(store.getters.currentTheme);
+      updateBrowserChrome();
+      browserChromeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      browserChromeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
       
       checkAuthAndReloadMessages();
       
@@ -236,6 +245,7 @@ export default {
     });
     
     onUnmounted(() => {
+      browserChromeObserver.disconnect();
       window.removeEventListener('languageChanged', onLanguageChanged);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     });
@@ -258,6 +268,13 @@ export default {
 @use "@/assets/styles/base/reset.scss" as *;
 @use "@/assets/styles/base/animations.scss" as *;
 @use "@/assets/styles/base/scrollbar.scss" as *;
+
+// Keep the document canvas aligned with the visible page for Safari's browser UI.
+html[data-browser-chrome],
+html[data-browser-chrome] body {
+  background-color: var(--browser-background-color, var(--background-color));
+}
+
 
 
 .page-transitioning {
