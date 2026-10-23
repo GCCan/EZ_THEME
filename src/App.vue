@@ -1,5 +1,10 @@
 <template>
   <div>
+    <!-- Outside route transforms: Safari samples fixed backgrounds at viewport edges. -->
+    <template v-if="$route.path === '/landing' && !siteConfig.customLandingPage">
+      <div class="browser-chrome-edge browser-chrome-edge-top" aria-hidden="true"></div>
+      <div class="browser-chrome-edge browser-chrome-edge-bottom" aria-hidden="true"></div>
+    </template>
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
     <div class="static-layout" v-if="$route.meta.requiresAuth">
       <!-- 网站名称 -->
@@ -273,6 +278,36 @@ export default {
 html[data-browser-chrome],
 html[data-browser-chrome] body {
   background-color: var(--browser-background-color, var(--background-color));
+}
+
+html[data-browser-chrome="landing"] body {
+  transition: none;
+}
+
+.browser-chrome-edge {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .browser-chrome-edge {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-color: var(--browser-background-color);
+  }
+
+  .browser-chrome-edge-top {
+    top: 0;
+    height: max(12px, env(safe-area-inset-top, 0px));
+  }
+
+  .browser-chrome-edge-bottom {
+    bottom: 0;
+    height: max(12px, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 

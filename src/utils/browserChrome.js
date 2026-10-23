@@ -7,7 +7,7 @@ export function syncBrowserChrome(isDefaultLanding) {
     : getComputedStyle(root).getPropertyValue('--background-color').trim();
 
   if (!background) return;
-  root.dataset.browserChrome = 'synced';
+  root.dataset.browserChrome = isDefaultLanding ? 'landing' : 'page';
   if (root.style.getPropertyValue('--browser-background-color') !== background) {
     root.style.setProperty('--browser-background-color', background);
   }
