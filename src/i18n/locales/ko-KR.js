@@ -173,6 +173,8 @@ export default {
     configLoadFailed: '구성 로드 실패, 페이지를 새로고침하세요'
   },
   landing: {
+    viewPlans: '요금제 보기',
+    recommended: '추천',
     mainText: SITE_CONFIG.landingText['ko-KR'] || '글로벌 네트워크의 무한한 가능성을 탐험하세요',
     scrollText: '아래로 스크롤하여 로그인',
     exploreButton: '탐험 시작',

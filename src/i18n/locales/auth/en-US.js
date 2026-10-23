@@ -129,6 +129,8 @@ export default {
     }
   },
   landing: {
+    viewPlans: 'View plans',
+    recommended: 'Recommended',
     mainText: SITE_CONFIG.landingText['en-US'] || 'Explore the infinite possibilities of the global network',
     scrollText: 'Scroll down to sign in',
     exploreButton: 'Start Exploring',

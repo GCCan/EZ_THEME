@@ -129,6 +129,8 @@ export default {
     }
   },
   landing: {
+    viewPlans: 'مشاهده پلن‌ها',
+    recommended: 'پیشنهادی',
     mainText: SITE_CONFIG.landingText['fa-IR'] || 'امکانات نامحدود شبکه جهانی را کاوش کنید',
     scrollText: 'برای ورود به پایین بکشید',
     exploreButton: 'شروع کاوش',

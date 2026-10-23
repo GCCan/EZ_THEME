@@ -129,6 +129,8 @@ export default {
     }
   },
   landing: {
+    viewPlans: '查看套餐',
+    recommended: '推薦方案',
     mainText: SITE_CONFIG.landingText['zh-TW'] || '探索全球網絡無限可能',
     scrollText: '向下滑動以登錄',
     exploreButton: '開始探索',

@@ -173,6 +173,8 @@ export default {
     configLoadFailed: '配置載入失敗，請重新整理頁面重試'
   },
   landing: {
+    viewPlans: '查看套餐',
+    recommended: '推薦方案',
     mainText: SITE_CONFIG.landingText['zh-TW'] || '探索全球網路的無限可能',
     scrollText: '向下滑動以登入',
     exploreButton: '開始探索',

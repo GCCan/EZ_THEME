@@ -172,6 +172,8 @@ export default {
         configLoadFailed: 'Configuration loading failed, please refresh the page'
     },
     landing: {
+    viewPlans: 'View plans',
+    recommended: 'Recommended',
         mainText: SITE_CONFIG.landingText['en-US'] || 'Explore the infinite possibilities of the global network',
         scrollText: 'Scroll down to login',
         exploreButton: 'Start Exploring',

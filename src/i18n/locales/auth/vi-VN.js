@@ -127,6 +127,8 @@ export default {
     }
   },
   landing: {
+    viewPlans: 'Xem các gói',
+    recommended: 'Đề xuất',
     mainText: SITE_CONFIG.landingText['vi-VN'] || 'Khám phá khả năng vô hạn của mạng toàn cầu',
     scrollText: 'Cuộn xuống để đăng nhập',
     exploreButton: 'Bắt đầu khám phá',

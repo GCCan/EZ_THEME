@@ -172,6 +172,8 @@ export default {
         configLoadFailed: '配置加载失败，请刷新页面重试'
     },
     landing: {
+    viewPlans: '查看套餐',
+    recommended: '推荐方案',
         mainText: SITE_CONFIG.landingText['zh-CN'] || '探索全球网络无限可能',
         scrollText: '向下滑动以登录',
         exploreButton: '开始探索',

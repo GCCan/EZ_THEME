@@ -173,6 +173,8 @@ export default {
     configLoadFailed: '設定読み込み失敗。ページを更新してください'
   },
   landing: {
+    viewPlans: 'プランを見る',
+    recommended: 'おすすめ',
     mainText: SITE_CONFIG.landingText['ja-JP'] || 'グローバルネットワークの無限の可能性を探る',
     scrollText: '下にスクロールしてログイン',
     exploreButton: '探索開始',
