@@ -1,5 +1,5 @@
 <template>
-  <div class="landing-page" tabindex="0" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': isLoaded }" ref="landingPageRef">
+  <div class="landing-page" tabindex="0" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': isLoaded }" ref="landingPageRef" @scroll.passive="handleScroll">
     
     <div ref="vantaRef" class="vanta-background" aria-hidden="true"></div>
     <div class="background-overlay" :class="{ 'is-dimmed': currentSection > 0 }" aria-hidden="true"></div>
@@ -149,24 +149,28 @@ let entranceFrame;
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-// Keep native scrolling and section navigation in sync.
+// Keep navigation inside the same native scroll container as touch and wheel input.
 const goToSection = (index) => {
   if (index < 0 || index >= totalSections || isTransitioning.value) return;
-  const section = landingPageRef.value?.querySelectorAll('.fullpage-section')[index];
-  section?.scrollIntoView({ behavior: reducedMotion.matches ? 'instant' : 'smooth', block: 'start' });
+  const container = landingPageRef.value;
+  const section = container?.querySelectorAll('.fullpage-section')[index];
+  if (!section) return;
+  const top = section.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+  container.scrollTo({ top, behavior: reducedMotion.matches ? 'instant' : 'smooth' });
 };
 const updateCurrentSection = () => {
   scrollFrame = null;
-  const sections = landingPageRef.value?.querySelectorAll('.fullpage-section');
+  const container = landingPageRef.value;
+  const sections = container?.querySelectorAll('.fullpage-section');
   if (!sections) return;
-  const viewportMiddle = window.innerHeight / 2;
+  const viewportMiddle = container.getBoundingClientRect().top + container.clientHeight / 2;
   let active = 0;
   sections.forEach((section, index) => {
     if (section.getBoundingClientRect().top <= viewportMiddle) active = index;
   });
   currentSection.value = active;
 };
-const handleDocumentScroll = () => {
+const handleScroll = () => {
   if (scrollFrame == null) scrollFrame = requestAnimationFrame(updateCurrentSection);
 };
 const navigateToLogin = () => {
@@ -179,9 +183,7 @@ const navigateToLogin = () => {
 };
 const handleArrowClick = () => currentSection.value < totalSections - 1 ? goToSection(currentSection.value + 1) : navigateToLogin();
 onMounted(() => {
-  document.documentElement.dataset.landingScroll = 'native';
-  window.addEventListener('scroll', handleDocumentScroll, { passive: true });
-  window.addEventListener('resize', handleDocumentScroll, { passive: true });
+  window.addEventListener('resize', handleScroll, { passive: true });
   updateCurrentSection();
   entranceFrame = requestAnimationFrame(() => { isLoaded.value = true; });
   themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
@@ -189,9 +191,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
   disposed = true;
-  delete document.documentElement.dataset.landingScroll;
-  window.removeEventListener('scroll', handleDocumentScroll);
-  window.removeEventListener('resize', handleDocumentScroll);
+  window.removeEventListener('resize', handleScroll);
   if (scrollFrame != null) cancelAnimationFrame(scrollFrame);
   themeObserver.disconnect();
   clearTimeout(transitionTimer);
@@ -207,8 +207,12 @@ onUnmounted(() => {
   --landing-border: rgba(32, 75, 73, .13);
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  min-height: 100svh;
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
   color: var(--landing-ink);
   background: #f5f8f6;
   isolation: isolate;
@@ -254,7 +258,7 @@ onUnmounted(() => {
 .enter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; min-height: 40px; border: 1px solid var(--landing-border); border-radius: 999px; color: var(--landing-ink); background: var(--landing-surface); font-size: 13px !important; }
 .top-toolbar :deep(.theme-toggle), .top-toolbar :deep(.language-btn) { color: var(--landing-ink); background: var(--landing-surface); border: 1px solid var(--landing-border); box-shadow: none; }
 .sections-wrapper { width: 100%; }
-.fullpage-section { width: 100%; min-height: 100vh; min-height: 100svh; scroll-snap-align: start; padding: calc(100px + env(safe-area-inset-top)) max(64px, env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(64px, env(safe-area-inset-left)); display: flex; align-items: safe center; justify-content: center; }
+.fullpage-section { width: 100%; min-height: 100vh; min-height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always; padding: calc(100px + env(safe-area-inset-top)) max(64px, env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(64px, env(safe-area-inset-left)); display: flex; align-items: safe center; justify-content: center; }
 .content-container, .intro-container, .plans-container { width: 100%; margin: auto; text-align: center; }
 .intro-container { max-width: 1080px; }
 .plans-container { max-width: 1120px; }

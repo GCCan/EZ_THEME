@@ -259,27 +259,6 @@ export default {
 @use "@/assets/styles/base/animations.scss" as *;
 @use "@/assets/styles/base/scrollbar.scss" as *;
 
-// The root document must scroll; overflow-x:hidden would create a body scroll container.
-html[data-landing-scroll="native"] {
-  height: auto;
-  min-height: 100%;
-  overflow-x: clip;
-  overflow-y: auto;
-  scroll-snap-type: y proximity;
-  scroll-behavior: auto;
-}
-
-html[data-landing-scroll="native"] body {
-  height: auto;
-  min-height: 100%;
-  overflow: visible;
-}
-
-html[data-landing-scroll="native"] #app {
-  height: auto;
-  min-height: 100%;
-}
-
 .page-transitioning {
   overflow: hidden;
 }
