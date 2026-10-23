@@ -1,5 +1,5 @@
 <template>
-  <div class="landing-page" tabindex="0" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': preloaderDone }" ref="landingPageRef">
+  <div class="landing-page" tabindex="0" :class="{ 'dark-theme': isDarkTheme, 'is-loaded': isLoaded }" ref="landingPageRef">
     
     <div ref="vantaRef" class="vanta-background" aria-hidden="true"></div>
     <div class="background-overlay" :class="{ 'is-dimmed': currentSection > 0 }" aria-hidden="true"></div>
@@ -23,7 +23,7 @@
       <section class="fullpage-section section-hero">
         <div class="content-container">
           <div class="hero-content">
-            <img v-if="siteConfig.showLogo" src="/images/logo.png" :alt="siteConfig.siteName" class="hero-logo" />
+            <img v-if="siteConfig.showLogo" src="/images/logo.png" :alt="siteConfig.siteName" width="64" height="64" decoding="async" class="hero-logo" />
             <h1 class="site-title">
               <span class="title-text">{{ siteConfig.siteName }}</span>
             </h1>
@@ -41,13 +41,12 @@
 
       <!-- 第二屏：介绍页 -->
       <section class="fullpage-section section-intro">
-        <div class="intro-container" :class="{ 'is-visible': currentSection === 1 }">
+        <div class="intro-container">
           <h2 class="intro-title">{{ $t('landing.introTitle') }}</h2>
           <p class="intro-subtitle">{{ $t('landing.introSubtitle') }}</p>
           
           <div class="features-grid">
-            <div class="feature-card" v-for="(feature, index) in features" :key="index"
-                 :style="{ transitionDelay: currentSection === 1 ? `${0.2 + index * 0.15}s` : '0s' }">
+            <div class="feature-card" v-for="feature in features" :key="feature.titleKey">
               <div class="feature-icon-wrapper">
                 <component :is="feature.icon" :size="28" :stroke-width="1.5" />
               </div>
@@ -61,14 +60,13 @@
 
       <!-- 第三屏：套餐页 -->
       <section class="fullpage-section section-plans">
-        <div class="plans-container" :class="{ 'is-visible': currentSection === 2 }">
+        <div class="plans-container">
           <h2 class="intro-title">{{ $t('landing.plansTitle') }}</h2>
           <p class="intro-subtitle">{{ $t('landing.plansSubtitle') }}</p>
           
           <div class="plans-grid">
-            <div class="landing-plan-card" v-for="(plan, index) in plans" :key="index"
-                 :class="{ 'is-featured': plan.featured }"
-                 :style="{ transitionDelay: currentSection === 2 ? `${0.2 + index * 0.15}s` : '0s' }">
+            <div class="landing-plan-card" v-for="plan in plans" :key="plan.nameKey"
+                 :class="{ 'is-featured': plan.featured }">
               <div class="plan-badge" v-if="plan.featured">{{ $t('landing.recommended') }}</div>
               <h3 class="plan-name">{{ $t(plan.nameKey) }}</h3>
               <div class="plan-price">
@@ -77,7 +75,7 @@
                 <span class="period">/ {{ $t('landing.month') }}</span>
               </div>
               <ul class="plan-features-list">
-                <li v-for="(feature, fIndex) in plan.featuresKey" :key="fIndex">
+                <li v-for="feature in plan.featuresKey" :key="feature">
                   <IconCheck :size="18" class="check-icon" />
                   <span>{{ $t(feature) }}</span>
                 </li>
@@ -111,9 +109,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { SITE_CONFIG } from '@/utils/baseConfig';
+import { useLandingHalo } from './composables/useLandingHalo';
 import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import { IconChevronDown, IconArrowRight, IconBolt, IconWorld, IconShieldLock, IconCheck } from '@tabler/icons-vue';
@@ -126,11 +125,12 @@ const themeObserver = new MutationObserver(() => {
 const siteConfig = SITE_CONFIG;
 const landingPageRef = ref(null);
 const vantaRef = ref(null);
-const preloaderDone = ref(false);
+const isLoaded = ref(false);
 const currentSection = ref(0);
-const totalSections = 3;
 const isTransitioning = ref(false);
 const sectionLabels = ['landing.mainText', 'landing.introTitle', 'landing.plansTitle'];
+const totalSections = sectionLabels.length;
+useLandingHalo(vantaRef, isDarkTheme, computed(() => currentSection.value === 0));
 const features = [
   { icon: IconBolt, titleKey: 'landing.featureSpeed', descKey: 'landing.featureSpeedDesc' },
   { icon: IconWorld, titleKey: 'landing.featureGlobal', descKey: 'landing.featureGlobalDesc' },
@@ -142,46 +142,14 @@ const plans = [
   { nameKey: 'landing.planStandard', price: '25', featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3'], featured: true },
   { nameKey: 'landing.planPro', price: '50', featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3', 'landing.planFeature4'] }
 ];
-let vantaEffect;
 let disposed = false;
-let backgroundVersion = 0;
 let scrollFrame;
 let transitionTimer;
 let entranceFrame;
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-const initVanta = async () => {
-  const version = ++backgroundVersion;
-  vantaEffect?.destroy();
-  vantaEffect = null;
-  // Both themes keep the animated halo; motion-sensitive users get the CSS fallback.
-  if (reducedMotion.matches || document.hidden) return;
-  try {
-    const [THREE, { default: HALO }] = await Promise.all([import('three'), import('vanta/src/vanta.halo')]);
-    if (disposed || version !== backgroundVersion || !vantaRef.value) return;
-    const color = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim();
-    vantaEffect = HALO({
-      el: vantaRef.value, THREE,
-      mouseControls: window.matchMedia('(pointer: fine)').matches,
-      touchControls: false, gyroControls: false,
-      backgroundColor: isDarkTheme.value ? 0x090e13 : 0x000000,
-      baseColor: /^#[0-9a-f]{6}$/i.test(color) ? parseInt(color.slice(1), 16) : 0x10b981,
-      amplitudeFactor: 1.2, size: window.innerWidth <= 768 ? 1.1 : 1.6,
-      xOffset: 0, yOffset: 0.05, minHeight: 200, minWidth: 200
-    });
-    // HALO's shader writes raw RGB without Three.js's output color conversion.
-    // Modern THREE.Color converts hex input to linear RGB, making #090e13
-    // render almost black. Supply display RGB so the canvas matches CSS/Safari.
-    const backgroundRGB = isDarkTheme.value ? [9 / 255, 14 / 255, 19 / 255] : [0, 0, 0];
-    vantaEffect.uniforms.backgroundColor.value.set(...backgroundRGB);
-  } catch (error) {
-    console.warn('Landing background unavailable; using CSS fallback.', error);
-  }
-};
-watch(isDarkTheme, initVanta);
-
-// Let the document perform real scrolling so Safari can manage its own toolbars.
+// Keep native scrolling and section navigation in sync.
 const goToSection = (index) => {
   if (index < 0 || index >= totalSections || isTransitioning.value) return;
   const section = landingPageRef.value?.querySelectorAll('.fullpage-section')[index];
@@ -215,12 +183,9 @@ onMounted(() => {
   window.addEventListener('scroll', handleDocumentScroll, { passive: true });
   window.addEventListener('resize', handleDocumentScroll, { passive: true });
   updateCurrentSection();
-  entranceFrame = requestAnimationFrame(() => { preloaderDone.value = true; });
+  entranceFrame = requestAnimationFrame(() => { isLoaded.value = true; });
   themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   isDarkTheme.value = document.body.classList.contains('dark-theme');
-  initVanta();
-  document.addEventListener('visibilitychange', initVanta);
-  reducedMotion.addEventListener('change', initVanta);
 });
 onUnmounted(() => {
   disposed = true;
@@ -229,12 +194,8 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleDocumentScroll);
   if (scrollFrame != null) cancelAnimationFrame(scrollFrame);
   themeObserver.disconnect();
-  backgroundVersion++;
-  vantaEffect?.destroy();
   clearTimeout(transitionTimer);
   cancelAnimationFrame(entranceFrame);
-  document.removeEventListener('visibilitychange', initVanta);
-  reducedMotion.removeEventListener('change', initVanta);
 });
 </script>
 
@@ -266,26 +227,13 @@ onUnmounted(() => {
 .vanta-background {
   z-index: -3;
   background: radial-gradient(ellipse at 50% 42%, rgba(var(--theme-color-rgb), .17), transparent 60%);
-  // WebGL paints opaque pixels that can differ from its configured background.
-  // Fade the whole canvas to the document color before either safe-area edge.
-  --halo-top-edge: max(24px, env(safe-area-inset-top, 0px));
-  --halo-bottom-edge: max(24px, env(safe-area-inset-bottom, 0px));
-  --halo-edge-mask: linear-gradient(to bottom,
-    transparent 0,
-    transparent var(--halo-top-edge),
-    #000 calc(var(--halo-top-edge) + 120px),
-    #000 calc(100% - var(--halo-bottom-edge) - 120px),
-    transparent calc(100% - var(--halo-bottom-edge)),
-    transparent 100%);
-  -webkit-mask-image: var(--halo-edge-mask);
-  mask-image: var(--halo-edge-mask);
 }
 .landing-page:not(.dark-theme) .vanta-background {
   background-color: #f5f8f6;
 }
 .landing-page:not(.dark-theme) .vanta-background :deep(canvas) {
   // Invert only the black-backed canvas, then blend its white field into the
-  // light page color. The surrounding DOM and Safari sampling color stay intact.
+  // light page color. The page background keeps its original color.
   filter: invert(1) hue-rotate(180deg);
   mix-blend-mode: multiply;
   opacity: .45;
@@ -366,6 +314,7 @@ onUnmounted(() => {
   .primary-btn, .secondary-btn { padding: 12px 18px; gap: 12px; }
   .intro-subtitle { font-size: 13px; margin-bottom: 24px; }
   .features-grid { grid-template-columns: 1fr; gap: 12px; }
+  .feature-card, .landing-plan-card { backdrop-filter: none; }
   .feature-card { display: grid; grid-template-columns: 40px 1fr; gap: 6px 16px; padding: 20px; border-radius: 16px; }
   .feature-icon-wrapper { grid-row: 1 / 3; width: 40px; height: 40px; margin: 0; border-radius: 12px; }
   .feature-title { margin: 0; font-size: 15px; }

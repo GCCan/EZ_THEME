@@ -1,10 +1,5 @@
 <template>
   <div>
-    <!-- Outside route transforms: Safari samples fixed backgrounds at viewport edges. -->
-    <template v-if="$route.path === '/landing' && !siteConfig.customLandingPage">
-      <div class="browser-chrome-edge browser-chrome-edge-top" aria-hidden="true"></div>
-      <div class="browser-chrome-edge browser-chrome-edge-bottom" aria-hidden="true"></div>
-    </template>
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
     <div class="static-layout" v-if="$route.meta.requiresAuth">
       <!-- 网站名称 -->
@@ -102,7 +97,6 @@ import ResourcePreloader from '@/components/common/ResourcePreloader.vue';
 import { IconGift } from '@tabler/icons-vue';
 import pageCache from '@/utils/pageCache';
 import { useToast } from '@/composables/useToast';
-import { syncBrowserChrome } from '@/utils/browserChrome';
 
 export default {
   name: 'App',
@@ -126,11 +120,6 @@ export default {
     const store = useStore();
     const { applyTheme } = useTheme();
     const siteConfig = ref(SITE_CONFIG);
-    const updateBrowserChrome = () => {
-      syncBrowserChrome(route.path === '/landing' && !SITE_CONFIG.customLandingPage);
-    };
-    const browserChromeObserver = new MutationObserver(updateBrowserChrome);
-    watch(() => route.path, updateBrowserChrome, { flush: 'post' });
     const cachedRoutes = computed(() => pageCache.getCachedRoutes());
     
     const customerServiceConfig = computed(() => CUSTOMER_SERVICE_CONFIG);
@@ -227,9 +216,6 @@ export default {
       window.addEventListener('languageChanged', onLanguageChanged);
       
       applyTheme(store.getters.currentTheme);
-      updateBrowserChrome();
-      browserChromeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-      browserChromeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
       
       checkAuthAndReloadMessages();
       
@@ -250,7 +236,6 @@ export default {
     });
     
     onUnmounted(() => {
-      browserChromeObserver.disconnect();
       window.removeEventListener('languageChanged', onLanguageChanged);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     });
@@ -274,16 +259,6 @@ export default {
 @use "@/assets/styles/base/animations.scss" as *;
 @use "@/assets/styles/base/scrollbar.scss" as *;
 
-// Keep the document canvas aligned with the visible page for Safari's browser UI.
-html[data-browser-chrome],
-html[data-browser-chrome] body {
-  background-color: var(--browser-background-color, var(--background-color));
-}
-
-html[data-browser-chrome="landing"] body {
-  transition: none;
-}
-
 // The root document must scroll; overflow-x:hidden would create a body scroll container.
 html[data-landing-scroll="native"] {
   height: auto;
@@ -304,34 +279,6 @@ html[data-landing-scroll="native"] #app {
   height: auto;
   min-height: 100%;
 }
-
-.browser-chrome-edge {
-  display: none;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .browser-chrome-edge {
-    display: block;
-    position: fixed;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    pointer-events: none;
-    background-color: var(--browser-background-color);
-  }
-
-  .browser-chrome-edge-top {
-    top: 0;
-    height: max(12px, env(safe-area-inset-top, 0px));
-  }
-
-  .browser-chrome-edge-bottom {
-    bottom: 0;
-    height: max(12px, env(safe-area-inset-bottom, 0px));
-  }
-}
-
-
 
 .page-transitioning {
   overflow: hidden;

@@ -125,6 +125,7 @@ export default defineConfig(({ mode }) => {
             if (!id.includes('node_modules')) return undefined;
 
             // 這些依賴只在特定頁面使用，拆包可降低首屏主包壓力。
+            if (id.includes('/three/') || id.includes('/vanta/')) return 'landing-background';
             if (id.includes('echarts') || id.includes('chart.js')) return 'charts';
             if (id.includes('aieditor') || id.includes('markdown-it') || id.includes('marked')) return 'editor-markdown';
             if (id.includes('qrcode') || id.includes('qrcode.vue') || id.includes('vue3-qrcode')) return 'qrcode';
@@ -141,7 +142,7 @@ export default defineConfig(({ mode }) => {
       port: 5173
     },
     test: {
-      setupFiles: ['tests/setup/localStorage.js']
+      environment: 'node'
     }
   };
 });
