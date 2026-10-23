@@ -24,3 +24,6 @@ Thumbs.db
 .idea/
 dist.zip
 ez-theme.zip
+
+# 本地嵌套检出目录，不作为子模块提交
+/EZ_THEME/
