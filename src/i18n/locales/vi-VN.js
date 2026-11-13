@@ -171,6 +171,7 @@ export default {
         configLoadFailed: 'Tải cấu hình thất bại, vui lòng làm mới trang và thử lại'
     },
     landing: {
+        plansRefreshFailed: "Không thể cập nhật gói. Đang hiển thị thông tin đã lưu; vui lòng kiểm tra giá mới nhất khi mua.",
     viewPlans: 'Xem các gói',
     recommended: 'Đề xuất',
         mainText: SITE_CONFIG.landingText['vi-VN'] || 'Khám phá khả năng vô hạn của mạng toàn cầu',

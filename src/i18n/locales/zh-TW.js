@@ -173,6 +173,7 @@ export default {
     configLoadFailed: '配置載入失敗，請重新整理頁面重試'
   },
   landing: {
+        plansRefreshFailed: "套餐更新失敗，目前顯示最近儲存的資訊，請於購買時確認最新價格。",
     viewPlans: '查看套餐',
     recommended: '推薦方案',
     mainText: SITE_CONFIG.landingText['zh-TW'] || '探索全球網路的無限可能',

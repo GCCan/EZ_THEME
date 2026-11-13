@@ -172,6 +172,7 @@ export default {
         configLoadFailed: 'Configuration loading failed, please refresh the page'
     },
     landing: {
+        plansRefreshFailed: "Could not refresh plans. Showing saved information; confirm the latest price before purchasing.",
     viewPlans: 'View plans',
     recommended: 'Recommended',
         mainText: SITE_CONFIG.landingText['en-US'] || 'Explore the infinite possibilities of the global network',

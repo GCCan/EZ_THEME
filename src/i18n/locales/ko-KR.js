@@ -173,6 +173,7 @@ export default {
     configLoadFailed: '구성 로드 실패, 페이지를 새로고침하세요'
   },
   landing: {
+        plansRefreshFailed: "요금제를 새로 불러오지 못했습니다. 저장된 정보를 표시합니다. 구매 시 최신 가격을 확인해 주세요.",
     viewPlans: '요금제 보기',
     recommended: '추천',
     mainText: SITE_CONFIG.landingText['ko-KR'] || '글로벌 네트워크의 무한한 가능성을 탐험하세요',

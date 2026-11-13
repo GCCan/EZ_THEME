@@ -172,6 +172,7 @@ export default {
         configLoadFailed: '配置加载失败，请刷新页面重试'
     },
     landing: {
+        plansRefreshFailed: "套餐更新失败，当前展示最近保存的信息，请在购买时确认最新价格。",
     viewPlans: '查看套餐',
     recommended: '推荐方案',
         mainText: SITE_CONFIG.landingText['zh-CN'] || '探索全球网络无限可能',

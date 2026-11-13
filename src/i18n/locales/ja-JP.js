@@ -173,6 +173,7 @@ export default {
     configLoadFailed: '設定読み込み失敗。ページを更新してください'
   },
   landing: {
+        plansRefreshFailed: "プランを更新できませんでした。保存済みの情報を表示しています。購入時に最新の価格をご確認ください。",
     viewPlans: 'プランを見る',
     recommended: 'おすすめ',
     mainText: SITE_CONFIG.landingText['ja-JP'] || 'グローバルネットワークの無限の可能性を探る',

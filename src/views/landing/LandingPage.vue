@@ -64,23 +64,42 @@
           <h2 class="intro-title">{{ $t('landing.plansTitle') }}</h2>
           <p class="intro-subtitle">{{ $t('landing.plansSubtitle') }}</p>
           
-          <div class="plans-grid">
-            <div class="landing-plan-card" v-for="plan in plans" :key="plan.nameKey"
-                 :class="{ 'is-featured': plan.featured }">
-              <div class="plan-badge" v-if="plan.featured">{{ $t('landing.recommended') }}</div>
-              <h3 class="plan-name">{{ $t(plan.nameKey) }}</h3>
+          <div v-if="plansLoading" class="plans-state" role="status">{{ $t('shop.loading') }}</div>
+          <div v-else-if="plansError" class="plans-state" role="alert">
+            <p>{{ $t('landing.plansRefreshFailed') }}</p>
+            <button class="plan-btn" @click="loadPlans">{{ $t('common.retry') }}</button>
+          </div>
+          <div v-if="!plansLoading && !plans.length && !plansError" class="plans-state" role="status">{{ $t('shop.no_plans_found') }}</div>
+          <div v-if="plans.length" class="plans-grid">
+            <div class="landing-plan-card" v-for="plan in plans" :key="plan.id">
+              <h3 class="plan-name">{{ plan.name }}</h3>
               <div class="plan-price">
                 <span class="currency">¥</span>
                 <span class="amount">{{ plan.price }}</span>
-                <span class="period">/ {{ $t('landing.month') }}</span>
+                <span class="period">{{ $t(`shop.plan.periods.${plan.period}`) }}</span>
               </div>
+              <p v-if="plan.intro" class="plan-intro">{{ plan.intro }}</p>
               <ul class="plan-features-list">
-                <li v-for="feature in plan.featuresKey" :key="feature">
+                <li v-if="plan.transfer_enable != null">
                   <IconCheck :size="18" class="check-icon" />
-                  <span>{{ $t(feature) }}</span>
+                  <span>{{ $t('payment.traffic') }}: {{ plan.transfer_enable }} GB</span>
+                </li>
+                <li v-if="plan.speed_limit > 0">
+                  <IconCheck :size="18" class="check-icon" />
+                  <span>{{ plan.speed_limit }} Mbps</span>
+                </li>
+                <li>
+                  <IconCheck :size="18" class="check-icon" />
+                  <span>{{ $t('dashboard.deviceLimit') }}: {{ plan.device_limit > 0 ? plan.device_limit : $t('dashboard.unlimited') }}</span>
                 </li>
               </ul>
-              <button class="plan-btn" @click="navigateToLogin">{{ $t('landing.buyNow') }}</button>
+              <details v-if="plan.description" class="plan-details">
+                <summary>{{ $t('common.viewDetails') }}</summary>
+                <div class="plan-description" v-html="plan.description"></div>
+              </details>
+              <button class="plan-btn" :disabled="plan.soldOut" @click="navigateToLogin">
+                {{ $t(plan.soldOut ? 'shop.plan.sold_out_btn' : 'landing.buyNow') }}
+              </button>
             </div>
           </div>
           
@@ -111,6 +130,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import DOMPurify from 'dompurify';
+import { fetchGuestPlans } from '@/api/guest';
+import { normalizeLandingPlans } from './composables/landingPlans';
+import plansSnapshot from './composables/landingPlansSnapshot.json';
 import { SITE_CONFIG } from '@/utils/baseConfig';
 import { useLandingHalo } from './composables/useLandingHalo';
 import ThemeToggle from '@/components/common/ThemeToggle.vue';
@@ -136,12 +159,36 @@ const features = [
   { icon: IconWorld, titleKey: 'landing.featureGlobal', descKey: 'landing.featureGlobalDesc' },
   { icon: IconShieldLock, titleKey: 'landing.featureSecurity', descKey: 'landing.featureSecurityDesc' }
 ];
-// Preserve existing advertised prices; this page does not fetch the shop catalog.
-const plans = [
-  { nameKey: 'landing.planBasic', price: '15', featuresKey: ['landing.planFeature1', 'landing.planFeature2'] },
-  { nameKey: 'landing.planStandard', price: '25', featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3'], featured: true },
-  { nameKey: 'landing.planPro', price: '50', featuresKey: ['landing.planFeature1', 'landing.planFeature2', 'landing.planFeature3', 'landing.planFeature4'] }
-];
+const preparePlans = catalog => normalizeLandingPlans(catalog).map(plan => {
+  // Catalog descriptions may contain full HTML documents; keep only safe text markup.
+  const description = DOMPurify.sanitize(plan.content || '', {
+    ALLOWED_TAGS: ['p', 'ul', 'ol', 'li', 'strong', 'b', 'em', 'br'],
+    ALLOWED_ATTR: []
+  });
+  const intro = new DOMParser().parseFromString(description, 'text/html').querySelector('p')?.textContent || '';
+  return { ...plan, description, intro };
+});
+// Verified public catalog from 2026-11-13, used if the public API is unavailable.
+const plans = ref(preparePlans(plansSnapshot));
+const plansLoading = ref(true);
+const plansError = ref(false);
+const plansAbortController = new AbortController();
+const loadPlans = async () => {
+  if (plansAbortController.signal.aborted || (plansLoading.value && plansRequestStarted)) return;
+  plansRequestStarted = true;
+  plansLoading.value = true;
+  plansError.value = false;
+  try {
+    const response = await fetchGuestPlans(plansAbortController.signal);
+    const catalog = preparePlans(response.data);
+    if (!disposed) plans.value = catalog;
+  } catch {
+    if (!disposed) plansError.value = true;
+  } finally {
+    if (!disposed) plansLoading.value = false;
+  }
+};
+let plansRequestStarted = false;
 let disposed = false;
 let scrollFrame;
 let transitionTimer;
@@ -183,6 +230,7 @@ const navigateToLogin = () => {
 };
 const handleArrowClick = () => currentSection.value < totalSections - 1 ? goToSection(currentSection.value + 1) : navigateToLogin();
 onMounted(() => {
+  loadPlans();
   window.addEventListener('resize', handleScroll, { passive: true });
   updateCurrentSection();
   entranceFrame = requestAnimationFrame(() => { isLoaded.value = true; });
@@ -191,6 +239,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
   disposed = true;
+  plansAbortController.abort();
   window.removeEventListener('resize', handleScroll);
   if (scrollFrame != null) cancelAnimationFrame(scrollFrame);
   themeObserver.disconnect();
@@ -281,10 +330,17 @@ onUnmounted(() => {
 .feature-title { color: var(--landing-ink); font-size: 18px; margin: 0 0 12px; }
 .feature-desc { color: var(--landing-muted); font-size: 14px; line-height: 1.9; margin: 0; }
 .plans-grid { padding-top: 12px; }
+.plans-state { padding: 40px 20px; color: var(--landing-muted); }
+.plans-state .plan-btn { width: auto; padding: 10px 24px; margin-top: 16px; }
+.plan-intro { color: var(--landing-muted); font-size: 13px; line-height: 1.7; margin: 0 0 20px; overflow-wrap: anywhere; }
+.plan-details { color: var(--landing-muted); font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
+.plan-details summary { cursor: pointer; }
+.plan-details summary:focus-visible { outline: 2px solid var(--theme-color); outline-offset: 4px; }
+.plan-description { margin-top: 12px; overflow-wrap: anywhere; }
+.plan-description :deep(li) { margin-bottom: 8px; }
+.plan-btn:disabled { cursor: not-allowed; opacity: .5; }
 .landing-plan-card { position: relative; display: flex; flex-direction: column; padding: 32px 28px; }
-.landing-plan-card.is-featured { border-color: rgba(var(--theme-color-rgb), .65); box-shadow: 0 12px 40px rgba(var(--theme-color-rgb), .1); background: linear-gradient(150deg, rgba(var(--theme-color-rgb), .08), transparent 65%), var(--landing-surface); }
-.plan-badge { position: absolute; top: 0; right: 24px; transform: translateY(-50%); background: color-mix(in srgb, var(--theme-color), #102e28 28%); color: #fff; padding: 6px 13px; border-radius: 999px; font-size: 11px; font-weight: 650; }
-.plan-name { margin: 0 0 24px; font-size: 17px; font-weight: 600; }
+.plan-name { overflow-wrap: anywhere; margin: 0 0 24px; font-size: 17px; font-weight: 600; }
 .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 26px; }
 .currency { font-size: 20px; }
 .amount { font-size: 52px; font-weight: 700; line-height: 1; letter-spacing: -.06em; }
@@ -293,7 +349,6 @@ onUnmounted(() => {
 .plan-features-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; font-size: 13px; color: var(--landing-muted); line-height: 1.5; }
 .check-icon { color: var(--theme-color); flex-shrink: 0; }
 .plan-btn { width: 100%; min-height: 44px; border: 1px solid var(--landing-border); border-radius: 10px; color: var(--landing-ink); background: transparent; font-size: 13px !important; font-weight: 600 !important; }
-.is-featured .plan-btn { background: color-mix(in srgb, var(--theme-color), #102e28 28%); color: #fff; border-color: transparent; }
 .page-indicators { position: fixed; right: max(22px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 20; }
 .indicator-dot { width: 28px; height: 28px; border: 0; background: transparent; display: grid; place-items: center; padding: 0; }
 .indicator-dot::after { content: ''; width: 5px; height: 5px; border-radius: 6px; background: var(--landing-muted); opacity: .4; transition: height .25s, opacity .25s; }

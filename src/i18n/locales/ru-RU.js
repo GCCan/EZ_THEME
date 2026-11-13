@@ -173,6 +173,7 @@ export default {
     configLoadFailed: 'Ошибка загрузки конфигурации, обновите страницу'
   },
   landing: {
+        plansRefreshFailed: "Не удалось обновить тарифы. Показаны сохранённые данные; уточните актуальную цену при покупке.",
     viewPlans: 'Смотреть тарифы',
     recommended: 'Рекомендуем',
     mainText: SITE_CONFIG.landingText['ru-RU'] || 'Исследуйте безграничные возможности глобальной сети',

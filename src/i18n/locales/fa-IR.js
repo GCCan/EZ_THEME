@@ -173,6 +173,7 @@ export default {
     configLoadFailed: 'بارگذاری تنظیمات شکست خورد، صفحه را تازه کنید'
   },
   landing: {
+        plansRefreshFailed: "به‌روزرسانی طرح‌ها انجام نشد. اطلاعات ذخیره‌شده نمایش داده می‌شود؛ هنگام خرید قیمت جدید را بررسی کنید.",
     viewPlans: 'مشاهده پلن‌ها',
     recommended: 'پیشنهادی',
     mainText: SITE_CONFIG.landingText['fa-IR'] || 'امکانات نامحدود شبکه جهانی را کاوش کنید',
