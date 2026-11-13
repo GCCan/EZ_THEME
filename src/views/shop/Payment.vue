@@ -580,6 +580,8 @@
 
     
 
+    <Teleport to="body">
+      <div class="payment-overlays">
     <!-- 支付成功动画 -->
 
     <transition name="fade">
@@ -799,6 +801,9 @@
       </div>
 
     </transition>
+
+      </div>
+    </Teleport>
 
   </div>
 
@@ -1895,57 +1900,9 @@ export default {
 
         } else {
 
-          showToast(t('payment.payment_successful'), 'success');
-
-          
-
           orderDetail.value.status = response.data;
 
-          
-
-          paymentSuccessful.value = true;
-
-          
-
-          if (paymentCheckTimer.value) {
-
-            clearInterval(paymentCheckTimer.value);
-
-            paymentCheckTimer.value = null;
-
-          }
-
-          
-
-          closePaymentModal();
-
-          
-
-          showSuccessAnimation.value = true;
-
-          
-
-          setTimeout(() => {
-
-            showConfettiAnimation.value = true;
-
-          }, 300);
-
-          
-
-          setTimeout(() => {
-
-            showConfettiAnimation.value = false;
-
-            
-
-            setTimeout(() => {
-
-              showSuccessAnimation.value = false;
-
-            }, 500);
-
-          }, 4500);
+          handlePaymentSuccess();
 
         }
 
@@ -2193,7 +2150,8 @@ export default {
 
 <style lang="scss" scoped>
 
-.payment-container {
+.payment-container,
+.payment-overlays {
 
   padding: 20px;
 
@@ -2227,7 +2185,7 @@ export default {
 
   .dashboard-card {
 
-    background-color: var(--card-bg-color);
+    background-color: var(--card-background);
 
     border-radius: 12px;
 
@@ -2327,7 +2285,7 @@ export default {
 
   .section-wrapper {
 
-    background-color: var(--card-bg-color);
+    background-color: var(--card-background);
 
     border-radius: 12px;
 
@@ -2492,6 +2450,10 @@ export default {
       .info-value {
 
         flex: 1;
+
+        min-width: 0;
+
+        overflow-wrap: anywhere;
 
         color: var(--text-color);
 
@@ -2975,7 +2937,7 @@ export default {
 
       &:hover:not(:disabled) {
 
-        background-color: var(--card-bg-color);
+        background-color: var(--card-background);
 
         transform: translateY(-2px);
 
@@ -3027,7 +2989,7 @@ export default {
 
       height: 20px;
 
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(var(--text-color-rgb), 0.08);
 
       border-radius: 4px;
 
@@ -3543,7 +3505,7 @@ export default {
 
       position: relative;
 
-      background-color: rgba(var(--card-background-rgb, 255, 255, 255), 1);
+      background-color: var(--card-background);
 
       border-radius: 20px;
 
@@ -4067,7 +4029,7 @@ export default {
 
   .cancel-modal-content {
 
-    background-color: rgba(var(--card-background-rgb, 255, 255, 255), 1);
+    background-color: var(--card-background);
 
     border-radius: 12px;
 
@@ -4079,11 +4041,6 @@ export default {
 
     
 
-    @media (prefers-color-scheme: dark) {
-
-      background-color: rgba(var(--card-background-rgb, 40, 40, 40), 1);
-
-    }
 
   }
 
@@ -4321,6 +4278,8 @@ export default {
 
   .status-icon {
 
+    flex-shrink: 0;
+
     margin-right: 1.5rem;
 
   }
@@ -4330,6 +4289,12 @@ export default {
   .status-text {
 
     flex: 1;
+
+    min-width: 0;
+
+    overflow-wrap: anywhere;
+
+    color: var(--text-color);
 
     
 
@@ -4617,6 +4582,24 @@ export default {
 
 }
 
+// Portaled overlays share the page styles without adding a layout box.
+.payment-overlays {
+  display: contents;
+}
+
+// Status titles need brighter colors against the dark card surfaces.
+body.dark-theme .order-status-notice {
+  &.status-pending { --payment-status-color: #ffb74d; }
+  &.status-processing { --payment-status-color: #64b5f6; }
+  &.status-cancelled { --payment-status-color: #ff8a80; }
+  &.status-completed { --payment-status-color: #81c784; }
+  &.status-discounted { --payment-status-color: #ce93d8; }
+  &.status-unknown { --payment-status-color: #bdbdbd; }
+
+  .status-icon, h3 {
+    color: var(--payment-status-color);
+  }
+}
 </style> 
 
 
