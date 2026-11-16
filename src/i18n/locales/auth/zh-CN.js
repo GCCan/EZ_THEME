@@ -3,6 +3,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: '正在加载套餐...',
+    no_plans_found: '未找到符合条件的套餐',
+    plan: {
+      sold_out_btn: '已售罄',
+      periods: {
+        month: ' / 月付',
+        quarter: ' / 季度',
+        half_year: ' / 半年',
+        year: ' / 一年',
+        two_year: ' / 两年',
+        three_year: ' / 三年',
+        onetime: ' / 一次性',
+      }
+    }
+  },
+  payment: { traffic: '流量' },
+  dashboard: {
+    deviceLimit: '在线设备',
+    unlimited: '不限制'
+  },
+
   auth: {
     loginTitle: '登录账户',
     loginSubtitle: '请输入您的凭据继续',
@@ -176,6 +199,8 @@ export default {
     back: '返回'
   },
   common: {
+    retry: '重试',
+    viewDetails: '查看详情',
     appName: SITE_CONFIG.siteName,
     welcome: `欢迎使用 ${SITE_CONFIG.siteName}`,
     login: '登录',

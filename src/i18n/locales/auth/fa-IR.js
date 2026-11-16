@@ -3,6 +3,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: 'در حال بارگذاری بسته ها...',
+    no_plans_found: 'بسته ای پیدا نشد',
+    plan: {
+      sold_out_btn: 'فروخته شد',
+      periods: {
+        month: ' / ماهانه',
+        quarter: ' / فصلی',
+        half_year: ' / شش ماهه',
+        year: ' / سالانه',
+        two_year: ' / دو ساله',
+        three_year: ' / سه ساله',
+        onetime: ' / یک بار',
+      }
+    }
+  },
+  payment: { traffic: 'ترافیک' },
+  dashboard: {
+    deviceLimit: 'دستگاه های آنلاین',
+    unlimited: 'نامحدود'
+  },
+
   auth: {
     loginTitle: 'ورود به حساب',
     loginSubtitle: 'لطفا اعتبار خود را وارد کنید تا ادامه دهید',
@@ -176,6 +199,8 @@ export default {
     back: 'بازگشت'
   },
   common: {
+    retry: 'دوباره امتحان کنید',
+    viewDetails: 'نمایش جزئیات',
     appName: SITE_CONFIG.siteName,
     welcome: `به ${SITE_CONFIG.siteName} خوش آمدید`,
     login: 'ورود',

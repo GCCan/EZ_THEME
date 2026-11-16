@@ -3,6 +3,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: '플랜 로딩 중...',
+    no_plans_found: '조건에 맞는 플랜을 찾을 수 없습니다',
+    plan: {
+      sold_out_btn: '품절',
+      periods: {
+        month: ' / 월간',
+        quarter: ' / 분기',
+        half_year: ' / 반년',
+        year: ' / 연간',
+        two_year: ' / 2년',
+        three_year: ' / 3년',
+        onetime: ' / 일회성',
+      }
+    }
+  },
+  payment: { traffic: '트래픽' },
+  dashboard: {
+    deviceLimit: '온라인 기기',
+    unlimited: '무제한'
+  },
+
   auth: {
     loginTitle: '로그인',
     loginSubtitle: '계속하려면 자격 증명을 입력하세요',
@@ -176,6 +199,8 @@ export default {
     back: '뒤로'
   },
   common: {
+    retry: '재시도',
+    viewDetails: '자세히 보기',
     appName: SITE_CONFIG.siteName,
     welcome: `${SITE_CONFIG.siteName}에 오신 것을 환영합니다`,
     login: '로그인',

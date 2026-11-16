@@ -3,6 +3,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: 'プラン読み込み中...',
+    no_plans_found: '条件に合うプランが見つかりません',
+    plan: {
+      sold_out_btn: '売り切れ',
+      periods: {
+        month: ' / 月払い',
+        quarter: ' / 四半期',
+        half_year: ' / 半年',
+        year: ' / 1年',
+        two_year: ' / 2年',
+        three_year: ' / 3年',
+        onetime: ' / 一次性',
+      }
+    }
+  },
+  payment: { traffic: '流量' },
+  dashboard: {
+    deviceLimit: 'オンライン機器',
+    unlimited: '無制限'
+  },
+
   auth: {
     loginTitle: 'ログイン',
     loginSubtitle: '続行するには認証情報を入力してください',
@@ -176,6 +199,8 @@ export default {
     back: '戻る'
   },
   common: {
+    retry: '再試行',
+    viewDetails: '詳細を見る',
     appName: SITE_CONFIG.siteName,
     welcome: `${SITE_CONFIG.siteName}へようこそ`,
     login: 'ログイン',

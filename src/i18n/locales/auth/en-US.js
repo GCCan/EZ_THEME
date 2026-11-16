@@ -3,6 +3,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: 'Loading plans...',
+    no_plans_found: 'No plans found matching the criteria',
+    plan: {
+      sold_out_btn: 'Sold Out',
+      periods: {
+        month: ' / Monthly',
+        quarter: ' / Quarterly',
+        half_year: ' / Half Year',
+        year: ' / Yearly',
+        two_year: ' / Two Years',
+        three_year: ' / Three Years',
+        onetime: ' / One-time',
+      }
+    }
+  },
+  payment: { traffic: 'Traffic' },
+  dashboard: {
+    deviceLimit: 'Online Devices',
+    unlimited: 'Unlimited'
+  },
+
   auth: {
     loginTitle: 'Sign In',
     loginSubtitle: 'Enter your credentials to continue',
@@ -176,6 +199,8 @@ export default {
     back: 'Back'
   },
   common: {
+    retry: 'Retry',
+    viewDetails: 'View Details',
     appName: SITE_CONFIG.siteName,
     welcome: `Welcome to ${SITE_CONFIG.siteName}`,
     login: 'Sign In',

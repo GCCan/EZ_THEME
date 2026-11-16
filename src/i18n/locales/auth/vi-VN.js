@@ -1,6 +1,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: 'Đang tải gói cước...',
+    no_plans_found: 'Không tìm thấy gói cước phù hợp',
+    plan: {
+      sold_out_btn: 'Hết hàng',
+      periods: {
+        month: ' / Tháng',
+        quarter: ' / Quý',
+        half_year: ' / Nửa năm',
+        year: ' / Một Năm',
+        two_year: ' / Hai năm',
+        three_year: ' / Ba năm',
+        onetime: ' / Vĩnh viễn',
+      }
+    }
+  },
+  payment: { traffic: 'Lưu lượng' },
+  dashboard: {
+    deviceLimit: 'Thiết bị trực tuyến',
+    unlimited: 'Không giới hạn'
+  },
+
   auth: {
     loginTitle: 'Đăng nhập tài khoản',
     loginSubtitle: 'Vui lòng nhập thông tin đăng nhập để tiếp tục',
@@ -174,6 +197,8 @@ export default {
     back: 'Quay lại'
   },
   common: {
+    retry: 'Thử lại',
+    viewDetails: 'Xem chi tiết',
     appName: SITE_CONFIG.siteName,
     welcome: `Chào mừng sử dụng ${SITE_CONFIG.siteName}`,
     login: 'Đăng nhập',

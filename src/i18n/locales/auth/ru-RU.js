@@ -3,6 +3,29 @@
 import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
+  // Public plan cards are also rendered before sign-in.
+  shop: {
+    loading: 'Загрузка планов...',
+    no_plans_found: 'Планы не найдены',
+    plan: {
+      sold_out_btn: 'Распродано',
+      periods: {
+        month: ' / Месяц',
+        quarter: ' / Квартал',
+        half_year: ' / Полгода',
+        year: ' / Год',
+        two_year: ' / Два года',
+        three_year: ' / Три года',
+        onetime: ' / Разово',
+      }
+    }
+  },
+  payment: { traffic: 'Трафик' },
+  dashboard: {
+    deviceLimit: 'Лимит устройств',
+    unlimited: 'Без ограничений'
+  },
+
   auth: {
     loginTitle: 'Вход',
     loginSubtitle: 'Введите свои учетные данные для продолжения',
@@ -176,6 +199,8 @@ export default {
     back: 'Назад'
   },
   common: {
+    retry: 'Повторить',
+    viewDetails: 'Посмотреть детали',
     appName: SITE_CONFIG.siteName,
     welcome: `Добро пожаловать в ${SITE_CONFIG.siteName}`,
     login: 'Вход',
